@@ -34,7 +34,7 @@ public class JdbcTransferDao implements TransferDao{
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
                 "VALUES (2, 2, ?, ?, ?) RETURNING transfer_id";
         Long newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, sendMoneyTransferToCreate.getAccountFrom(), sendMoneyTransferToCreate.getAccountTo(), sendMoneyTransferToCreate.getAmount()).longValue();
-        return findTransferByTransferId(newTransferId);
+        return findTransferByTransferId(sendMoneyTransferToCreate.getAccountFrom(), newTransferId);
     }
 
     // As an authenticated user of the system, I need to be able to see transfers I have sent or received.
