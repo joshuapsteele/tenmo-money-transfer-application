@@ -37,7 +37,7 @@ public class Account {
 
     public List getTransfers(){
         List<SqlRowSet> userTransfers = new ArrayList<>();
-        String sql = "SELECT transfers FROM transfers " +
+        String sql = "SELECT * FROM transfers " +
                 "WHERE user_id = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
         while (results.next()){
@@ -46,8 +46,10 @@ public class Account {
         return userTransfers;
     }
     
-    public Transfer getTransferById(){
-        Transfer requestTransfer = null;
+    public Transfer getTransferById(Long transferId){
+        String sql = "SELECT * FROM transfers " +
+                "WHERE transfer_id = ?";
+        SqlRowSet requestTransfer = jdbcTemplate.queryForRowSet(sql, transferId);
         return requestTransfer;
     }
 }
