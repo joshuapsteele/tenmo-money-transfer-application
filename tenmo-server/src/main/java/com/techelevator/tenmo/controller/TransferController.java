@@ -39,6 +39,8 @@ public class TransferController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "", method = RequestMethod.POST)
     public Transfer createSendMoneyTransfer(@Valid @RequestBody Transfer sendMoneyTransferToCreate) {
+        accountDao.decreaseBalance(sendMoneyTransferToCreate.getAccountFrom, sendMoneyTransferToCreate.getAmountToTransfer);
+        accountDao.increaseBalance(sendMoneyTransferToCreate.getAccountTo, sendMoneyTransferToCreate.getAmountToTransfer);
         return transferDao.createSendMoneyTransfer(sendMoneyTransferToCreate);
     }
 

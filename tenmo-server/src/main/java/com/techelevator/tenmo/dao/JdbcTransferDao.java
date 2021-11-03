@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +33,9 @@ public class JdbcTransferDao implements TransferDao{
     public Transfer createSendMoneyTransfer(Transfer sendMoneyTransferToCreate) {
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
                 "VALUES (2, 2, ?, ?, ?) RETURNING transfer_id";
-        Long newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, sendMoneyTransferToCreate.getAccountFromId, sendMoneyTransferToCreate.getAccountToId, sendMoneyTransferToCreate.getAmountToTransfer).longValue();
-        return findTransferByTransferId(newTransferId);
+        Long newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, sendMoneyTransferToCreate.getAccountFrom,
+                sendMoneyTransferToCreate.getAccountTo, sendMoneyTransferToCreate.getAmountToTransfer).longValue();
+        return findTransferByTransferId(sendMoneyTransferToCreate.getAccountFrom, newTransferId);
     }
 
     // As an authenticated user of the system, I need to be able to see transfers I have sent or received.
@@ -41,7 +43,7 @@ public class JdbcTransferDao implements TransferDao{
     public List<Transfer> viewAllTransfersByUserId(Long userId) {
         List<Transfer> allTransfersByUserId = new ArrayList<>();
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfers JOIN accounts ON account_from = user_id AND account_to = user_id WHERE user_id = ?;";
+                "FROM transfers JOIN accounts ON account_from = account_id OR account_to = account_id WHERE user_id = ?;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
         while (results.next()) {
             allTransfersByUserId.add(mapRowToTransfer(results));
@@ -51,11 +53,11 @@ public class JdbcTransferDao implements TransferDao{
 
     // As an authenticated user of the system, I need to be able to retrieve the details of any transfer based upon the transfer ID.
     @Override
-    public Transfer findTransferByTransferId(Long transferId) {
+    public Transfer findTransferByTransferId(Long userId, Long transferId) {
         Transfer transfer = null;
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfers WHERE transfer_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+                "FROM transfers JOIN accounts ON account_from = account_id OR account_to = account_id WHERE user_id = ? AND transfer_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, transferId);
         if (results.next()) {
             transfer = mapRowToTransfer(results);
         }
@@ -66,9 +68,9 @@ public class JdbcTransferDao implements TransferDao{
     public void update(Transfer transferToUpdate) {
         String sql = "UPDATE transfers SET transfer_type_id = ?, transfer_status_id = ?, account_from = ?, " +
                 "account_to = ?, amount = ? WHERE transfer_id = ?;";
-//        PUT THESE LINES BACK IN AFTER TRANSFER CLASS HAS BEEN CREATED
-//        jdbcTemplate.update(sql, transferToUpdate.getTransferTypeId, transferToUpdate.getTransferStatusId,
-//                transferToUpdate.getAccountFrom, transferToUpdate.getAccountTo, transferToUpdate.getAmount);
+
+        jdbcTemplate.update(sql, transferToUpdate.getTransferTypeId, transferToUpdate.getTransferStatusId,
+                transferToUpdate.getAccountFrom, transferToUpdate.getAccountTo, transferToUpdate.getAmount);
     }
 
     @Override
@@ -79,13 +81,13 @@ public class JdbcTransferDao implements TransferDao{
 
     private Transfer mapRowToTransfer(SqlRowSet rs) {
         Transfer transfer = new Transfer();
-//        PUT THESE LINES BACK IN AFTER TRANSFER CLASS HAS BEEN CREATED
-//        transfer.setTransferId(rs.getLong("transfer_id"));
-//        transfer.setTransferTypeId(rs.getLong("transfer_type_id"));
-//        transfer.setTransferStatusId(rs.getLong("transfer_status_id"));
-//        transfer.setAccountFrom(rs.getLong("account_from"));
-//        transfer.setAccountTo(rs.getLong("account_to"));
-//        transfer.setAmount(rs.getBigDecimal("amount"));
+
+        transfer.setTransferId(rs.getLong("transfer_id"));
+        transfer.setTransferTypeId(rs.getLong("transfer_type_id"));
+        transfer.setTransferStatusId(rs.getLong("transfer_status_id"));
+        transfer.setAccountFrom(rs.getLong("account_from"));
+        transfer.setAccountTo(rs.getLong("account_to"));
+        transfer.setAmount(rs.getBigDecimal("amount"));
         return transfer;
     }
 }

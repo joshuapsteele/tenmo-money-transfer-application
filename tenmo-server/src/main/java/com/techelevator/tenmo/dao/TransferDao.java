@@ -11,7 +11,7 @@ public interface TransferDao {
 
     List<Transfer> viewAllTransfersByUserId(Long userId);
 
-    Transfer findTransferByTransferId(Long transferId);
+    Transfer findTransferByTransferId(Long userId, Long transferId);
 
     void update(Transfer transferToUpdate);
 

@@ -3,8 +3,11 @@ package com.techelevator.tenmo.dao;
 import com.techelevator.tenmo.model.User;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserDao {
+
+    Map<Long, String> listUserIdsAndUsernames();
 
     List<User> findAll();
 

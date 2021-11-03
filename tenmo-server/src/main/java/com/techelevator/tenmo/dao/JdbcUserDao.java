@@ -9,8 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class JdbcUserDao implements UserDao {
@@ -20,6 +19,17 @@ public class JdbcUserDao implements UserDao {
 
     public JdbcUserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public Map<Long, String> listUserIdsAndUsernames() {
+        Map<Long, String> allUserIdsAndUsernames = new LinkedHashMap<>();
+        String sql = "SELECT user_id, username FROM users ORDER BY user_id;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+        while (results.next()) {
+        allUserIdsAndUsernames.put(results.getLong("user_id"), results.getString("username"));
+        }
+        return allUserIdsAndUsernames;
     }
 
     @Override
