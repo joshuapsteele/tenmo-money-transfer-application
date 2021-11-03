@@ -79,6 +79,16 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
+    @Override
+    public User update(User userToUpdate) {
+        return null;
+    }
+
+    @Override
+    public boolean delete(User userToDelete) {
+        return false;
+    }
+
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
         user.setId(rs.getLong("user_id"));
