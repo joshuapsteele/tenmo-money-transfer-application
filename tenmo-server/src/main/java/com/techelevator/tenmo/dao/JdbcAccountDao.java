@@ -16,8 +16,9 @@ public class JdbcAccountDao implements AccountDao{
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // As an authenticated user of the system, I need to be able to see my Account Balance.
     @Override
-    public BigDecimal viewBalance(int userId) {
+    public BigDecimal viewBalance(Long userId) {
         String sql = "SELECT balance FROM accounts WHERE user_id = ?;";
         BigDecimal balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, userId);
         return balance;
