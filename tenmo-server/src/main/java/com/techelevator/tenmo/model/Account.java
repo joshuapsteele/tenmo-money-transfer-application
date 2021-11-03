@@ -3,17 +3,18 @@ package com.techelevator.tenmo.model;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Account {
-    private final JdbcTemplate jdbcTemplate;
+//    private final JdbcTemplate jdbcTemplate;
     private final Long accountId;
     private final Long userId;
-    private Double balance;
+    private BigDecimal balance;
 
-    public Account(JdbcTemplate jdbcTemplate, Long accountId, Long userId, Double balance){
-        this.jdbcTemplate = jdbcTemplate;
+    public Account(Long accountId, Long userId, BigDecimal balance){
+//        this.jdbcTemplate = jdbcTemplate;
         this.accountId = accountId;
         this.userId = userId;
         this.balance = balance;
@@ -27,14 +28,16 @@ public class Account {
         return userId;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
+    /*
+    THESE METHODS SHOULD GO ELSEWHERE, IN THE DAO AND CONTROLLER CLASSES
     public List getTransfers(){
         List<SqlRowSet> userTransfers = new ArrayList<>();
         String sql = "SELECT * FROM transfers " +
@@ -51,5 +54,5 @@ public class Account {
                 "WHERE transfer_id = ?";
         SqlRowSet requestTransfer = jdbcTemplate.queryForRowSet(sql, transferId);
         return requestTransfer;
-    }
+    }*/
 }

@@ -2,64 +2,64 @@ package com.techelevator.tenmo.model;
 
 import org.springframework.web.bind.annotation.RequestBody;
 
-public class Transfer {
-    private int transferId;
-    private int accountFrom;
-    private int accountTo;
-    private Double amount;
-    private boolean transferType;
-    private String transferStatus;
+import java.math.BigDecimal;
 
-    public Transfer(boolean transferType, String transferStatus){
-        this.transferType = transferType;
-        this.transferStatus = transferStatus;
+public class Transfer {
+    private Long transferId;
+    private Long accountFrom;
+    private Long accountTo;
+    private BigDecimal amount;
+    private int transferTypeId;
+    private int transferStatusId;
+
+    public Transfer(){
     }
 
-    public Integer getTransferId() {
+    public Long getTransferId() {
         return transferId;
     }
 
-    public int getAccountFrom() {
+    public void setTransferId(Long transferId) {
+        this.transferId = transferId;
+    }
+
+    public Long getAccountFrom() {
         return accountFrom;
     }
 
-    public void setAccountFrom(int accountFrom) {
+    public void setAccountFrom(Long accountFrom) {
         this.accountFrom = accountFrom;
     }
 
-    public int getAccountTo() {
+    public Long getAccountTo() {
         return accountTo;
     }
 
-    public void setAccountTo(int accountTo) {
+    public void setAccountTo(Long accountTo) {
         this.accountTo = accountTo;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public boolean isTransferType() {
-        return transferType;
+    public int getTransferTypeId() {
+        return transferTypeId;
     }
 
-    public boolean getTransferType() {
-        return transferType;
+    public void setTransferTypeId(int transferTypeId) {
+        this.transferTypeId = transferTypeId;
     }
 
-    public void setTransferType(boolean transferType) {
-        this.transferType = transferType;
+    public int getTransferStatusId() {
+        return transferStatusId;
     }
 
-    public String getTransferStatus() {
-        return transferStatus;
-    }
-
-    public void setTransferStatus(String transferStatus) {
-        this.transferStatus = transferStatus;
+    public void setTransferStatusId(int transferStatusId) {
+        this.transferStatusId = transferStatusId;
     }
 }
