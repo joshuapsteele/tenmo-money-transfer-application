@@ -23,13 +23,13 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public int findIdByUsername(String username) {
+    public Long findIdByUsername(String username) {
         String sql = "SELECT user_id FROM users WHERE username ILIKE ?;";
-        Integer id = jdbcTemplate.queryForObject(sql, Integer.class, username);
+        Long id = jdbcTemplate.queryForObject(sql, Long.class, username);
         if (id != null) {
             return id;
         } else {
-            return -1;
+            return -1L;
     }
     }
 
@@ -77,6 +77,16 @@ public class JdbcUserDao implements UserDao {
         }
 
         return true;
+    }
+
+    @Override
+    public User update(User userToUpdate) {
+        return null;
+    }
+
+    @Override
+    public boolean delete(User userToDelete) {
+        return false;
     }
 
     private User mapRowToUser(SqlRowSet rs) {

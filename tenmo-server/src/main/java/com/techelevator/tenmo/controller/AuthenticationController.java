@@ -36,6 +36,7 @@ public class AuthenticationController {
         this.userDao = userDao;
     }
 
+    //  As a user of the system, I need to be able to log in using my registered username and password.
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public LoginResponse login(@Valid @RequestBody LoginDTO loginDto) {
 

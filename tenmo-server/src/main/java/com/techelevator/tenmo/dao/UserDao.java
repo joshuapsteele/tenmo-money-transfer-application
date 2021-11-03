@@ -10,7 +10,12 @@ public interface UserDao {
 
     User findByUsername(String username);
 
-    int findIdByUsername(String username);
+    Long findIdByUsername(String username);
 
+    // As a user of the system, I need to be able to register myself with a username and password.
     boolean create(String username, String password);
+
+    User update(User userToUpdate);
+
+    boolean delete(User userToDelete);
 }
