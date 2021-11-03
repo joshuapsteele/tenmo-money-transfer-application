@@ -9,6 +9,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
+import java.util.List;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
@@ -37,6 +39,15 @@ public class TransferController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "", method = RequestMethod.POST)
     public Transfer createSendMoneyTransfer(@Valid @RequestBody Transfer sendMoneyTransferToCreate) {
+        accountDao.decreaseBalance(sendMoneyTransferToCreate.getAccountFrom, sendMoneyTransferToCreate.getAmountToTransfer);
+        accountDao.increaseBalance(sendMoneyTransferToCreate.getAccountTo, sendMoneyTransferToCreate.getAmountToTransfer);
         return transferDao.createSendMoneyTransfer(sendMoneyTransferToCreate);
+    }
+
+    @RequestMapping(path = "my-transfers", method = RequestMethod.GET)
+    public List<Transfer> viewAllTransfersByUserId(Principal whoIsLoggedIn) {
+        String username = whoIsLoggedIn.getName();
+        Long userId = userDao.findIdByUsername(username);
+        return transferDao.viewAllTransfersByUserId(userId);
     }
 }

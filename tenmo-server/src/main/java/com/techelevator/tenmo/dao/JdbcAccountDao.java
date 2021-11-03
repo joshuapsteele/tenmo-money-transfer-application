@@ -25,14 +25,27 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
-    public void update(Account accountToUpdate) {
+    public void increaseBalance(Long accountToId, BigDecimal amountToIncrease) {
+        String sql = "UPDATE accounts SET balance = balance + ? WHERE account_id = ?;";
+        jdbcTemplate.update(sql, amountToIncrease, accountToId);
+    }
+
+    @Override
+    public void decreaseBalance(Long accountFromId, BigDecimal amountToDecrease) {
+        String sql = "UPDATE accounts SET balance = balance - ? WHERE account_id = ?;";
+        jdbcTemplate.update(sql, amountToDecrease, accountFromId);
+    }
+
+
+    @Override
+    public void updateAccount(Account accountToUpdate) {
         String sql = "UPDATE account SET user_id = ?, balance = ?, WHERE account_id = ?;";
 //        PUT THIS LINE BACK IN AFTER ACCOUNT CLASS IS CREATED
 //        jdbcTemplate.update(sql, accountToUpdate.getUserId(), accountToUpdate.getBalance(), accountToUpdate.getAccountId());
     }
 
     @Override
-    public void delete(Account accountToDelete) {
+    public void deleteAccount(Account accountToDelete) {
         String sql = "DELETE FROM account WHERE account_id = ?;";
 //        PUT THIS LINE BACK IN AFTER ACCOUNT CLASS IS CREATED
 //        jdbcTemplate.update(sql, accountToDelete.getAccountId());

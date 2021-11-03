@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class JdbcTransferDao implements TransferDao{
     public List<Transfer> viewAllTransfersByUserId(Long userId) {
         List<Transfer> allTransfersByUserId = new ArrayList<>();
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfers JOIN accounts ON account_from = user_id AND account_to = user_id WHERE user_id = ?;";
+                "FROM transfers JOIN accounts ON account_from = account_id OR account_to = account_id WHERE user_id = ?;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
         while (results.next()) {
             allTransfersByUserId.add(mapRowToTransfer(results));
@@ -51,11 +52,11 @@ public class JdbcTransferDao implements TransferDao{
 
     // As an authenticated user of the system, I need to be able to retrieve the details of any transfer based upon the transfer ID.
     @Override
-    public Transfer findTransferByTransferId(Long transferId) {
+    public Transfer findTransferByTransferId(Long userId, Long transferId) {
         Transfer transfer = null;
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfers WHERE transfer_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+                "FROM transfers JOIN accounts ON account_from = account_id OR account_to = account_id WHERE user_id = ? AND transfer_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, transferId);
         if (results.next()) {
             transfer = mapRowToTransfer(results);
         }
