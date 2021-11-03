@@ -33,9 +33,8 @@ public class JdbcTransferDao implements TransferDao{
     public Transfer createSendMoneyTransfer(Transfer sendMoneyTransferToCreate) {
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
                 "VALUES (2, 2, ?, ?, ?) RETURNING transfer_id";
-        Long newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, sendMoneyTransferToCreate.getAccountFrom,
-                sendMoneyTransferToCreate.getAccountTo, sendMoneyTransferToCreate.getAmountToTransfer).longValue();
-        return findTransferByTransferId(sendMoneyTransferToCreate.getAccountFrom, newTransferId);
+        Long newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, sendMoneyTransferToCreate.getAccountFrom(), sendMoneyTransferToCreate.getAccountTo(), sendMoneyTransferToCreate.getAmount()).longValue();
+        return findTransferByTransferId(newTransferId);
     }
 
     // As an authenticated user of the system, I need to be able to see transfers I have sent or received.
@@ -68,9 +67,8 @@ public class JdbcTransferDao implements TransferDao{
     public void update(Transfer transferToUpdate) {
         String sql = "UPDATE transfers SET transfer_type_id = ?, transfer_status_id = ?, account_from = ?, " +
                 "account_to = ?, amount = ? WHERE transfer_id = ?;";
-
-        jdbcTemplate.update(sql, transferToUpdate.getTransferTypeId, transferToUpdate.getTransferStatusId,
-                transferToUpdate.getAccountFrom, transferToUpdate.getAccountTo, transferToUpdate.getAmount);
+        jdbcTemplate.update(sql, transferToUpdate.getTransferTypeId(), transferToUpdate.getTransferStatusId(),
+                transferToUpdate.getAccountFrom(), transferToUpdate.getAccountTo(), transferToUpdate.getAmount());
     }
 
     @Override
@@ -81,10 +79,9 @@ public class JdbcTransferDao implements TransferDao{
 
     private Transfer mapRowToTransfer(SqlRowSet rs) {
         Transfer transfer = new Transfer();
-
         transfer.setTransferId(rs.getLong("transfer_id"));
-        transfer.setTransferTypeId(rs.getLong("transfer_type_id"));
-        transfer.setTransferStatusId(rs.getLong("transfer_status_id"));
+        transfer.setTransferTypeId(rs.getInt("transfer_type_id"));
+        transfer.setTransferStatusId(rs.getInt("transfer_status_id"));
         transfer.setAccountFrom(rs.getLong("account_from"));
         transfer.setAccountTo(rs.getLong("account_to"));
         transfer.setAmount(rs.getBigDecimal("amount"));
