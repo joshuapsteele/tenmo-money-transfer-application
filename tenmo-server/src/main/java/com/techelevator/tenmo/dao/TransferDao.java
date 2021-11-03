@@ -7,10 +7,14 @@ import java.util.List;
 
 public interface TransferDao {
 
-    Transfer sendMoneyTransfer(int fromUserId, int toUserId, BigDecimal amountToTransfer);
+    Transfer createSendMoneyTransfer(int fromUserId, int toUserId, BigDecimal amountToTransfer);
 
     List<Transfer> viewAllTransfersByUserId(int userId);
 
     Transfer findTransferByTransferId(int transferId);
+
+    Transfer update(Transfer transferToUpdate);
+
+    boolean delete(Transfer transferToDelete);
 
 }

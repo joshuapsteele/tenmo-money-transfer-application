@@ -8,10 +8,8 @@ public interface AccountDao {
 
     BigDecimal viewBalance(int userId);
 
-    Account create(Account accountToCreate);
+    void update(Account accountToUpdate);
 
-    Account update(Account accountToUpdate);
-
-    Account delete(Account accountToDelete);
+    void delete(Account accountToDelete);
 
 }
