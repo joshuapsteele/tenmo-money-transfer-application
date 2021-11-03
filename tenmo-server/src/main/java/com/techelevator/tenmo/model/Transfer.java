@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.model;
 
+<<<<<<< HEAD
 import org.springframework.web.bind.annotation.RequestBody;
 
 public class Transfer {
@@ -62,4 +63,7 @@ public class Transfer {
     public void setTransferStatus(String transferStatus) {
         this.transferStatus = transferStatus;
     }
+=======
+public class Transfer {
+>>>>>>> 30bb0483a16755930af0a54a7959cd4d67e9c4fb
 }

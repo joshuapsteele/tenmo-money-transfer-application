@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.model;
 
+<<<<<<< HEAD
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -52,4 +53,7 @@ public class Account {
         SqlRowSet requestTransfer = jdbcTemplate.queryForRowSet(sql, transferId);
         return requestTransfer;
     }
+=======
+public class Account {
+>>>>>>> 30bb0483a16755930af0a54a7959cd4d67e9c4fb
 }
