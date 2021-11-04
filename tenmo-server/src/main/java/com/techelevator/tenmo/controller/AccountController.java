@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
-@RequestMapping("/api/accounts")
+@RequestMapping("/api/accounts/")
 public class AccountController {
     private final AccountDao accountDao;
     private final TransferDao transferDao;
@@ -32,14 +32,14 @@ public class AccountController {
         return accountDao.getAccounts();
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(path = "{id}", method = RequestMethod.GET)
     public Account getAccountById(@PathVariable Long id) {
         return accountDao.getAccountById(id);
     }
 
     // As an authenticated user of the system, I need to be able to see my Account Balance.
 
-    @RequestMapping(path = "/my-account-balance", method = RequestMethod.GET)
+    @RequestMapping(path = "my-account-balance", method = RequestMethod.GET)
     public BigDecimal viewBalance(Principal whoIsLoggedIn) {
         String username = whoIsLoggedIn.getName();
         Long userId = userDao.findIdByUsername(username);
@@ -53,13 +53,13 @@ public class AccountController {
         return accountDao.create(account);
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(path = "{id}", method = RequestMethod.PUT)
     public boolean update(@Valid @PathVariable Long id, @RequestBody Account account) {
         return accountDao.update(id, account);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(path = "{id}", method = RequestMethod.DELETE)
     public boolean delete(@Valid @PathVariable Long id) {
         return accountDao.delete(id);
     }

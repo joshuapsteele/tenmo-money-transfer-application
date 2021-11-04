@@ -8,26 +8,27 @@ import org.springframework.web.client.RestTemplate;
 
 public class TransferService {
 
-    // TODO Make sure that TransferService here on the client side matches up with TransferController on the server.
-
     // Our API BASE URL should be http://localhost:8080/api/
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private String authToken = null; //Do I need for transfers or just refer to authUser?
-                                     //If I don't need an authToken for transfers, how to get?
+    private String authToken = null;
+
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
 
-    public Transfer sendTransfer (Transfer newTransfer){
+    // I think we should make this method a generic create Transfer instead of create SEND transfer,
+    // because we can always specify the transfer type inside of the Transfer object itself.
+    public Transfer createTransfer(Transfer newTransfer){
+        Transfer transfer = null;
         try {
             ResponseEntity<Transfer> response = restTemplate.exchange(API_BASE_URL + "transfers",
                     HttpMethod.POST,
                     makeTransferEntity(newTransfer),
                     Transfer.class);
-
-            return response.getBody();
+            transfer = response.getBody();
+            return transfer;
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Transfer failed. Try again.");
         }
@@ -35,24 +36,23 @@ public class TransferService {
         return null;
     }
 
-//    Commented this out for now.
+    // I think this method is good. I just added in an actual Transfer object to return.
+    public Transfer getTransferById(Long transferID) {
+        Transfer transfer = null;
+        try {
+            ResponseEntity<Transfer> response =
+                    restTemplate.exchange(API_BASE_URL + "transfers/" + transferID,
+                            HttpMethod.GET,
+                            makeAuthEntity(),
+                            Transfer.class);
 
-//    public Transfer getTransfer(Long transferID) {
-//        Transfer transfer = null;
-//        try {
-//            ResponseEntity<Transfer> response =
-//                    restTemplate.exchange(API_BASE_URL + "transfers/" + transferID,
-//                            HttpMethod.GET,
-//                            makeAuthEntity(),
-//                            Transfer.class);
-//
-//            transfer = response.getBody();
-//        } catch (RestClientResponseException | ResourceAccessException e){
-//            System.out.println("Transfer pull failed. ");
-//        }
-//        System.out.println("TransferService.getTransfer has not been implemented");
-//        return transfer;
-//    }
+            transfer = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e){
+            System.out.println("Transfer pull failed. ");
+        }
+        System.out.println("TransferService.getTransfer has not been implemented");
+        return transfer;
+    }
 
     public Transfer[] listTransfers(){
         Transfer[] userTransfers = null;
@@ -73,7 +73,6 @@ public class TransferService {
         return new HttpEntity<>(transfer, headers);
     }
 
-    //Need to consult with Walt about this
     private HttpEntity<Void> makeAuthEntity(){
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);

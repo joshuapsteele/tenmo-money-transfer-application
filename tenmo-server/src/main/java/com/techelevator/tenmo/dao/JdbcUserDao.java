@@ -22,19 +22,8 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public Map<Long, String> listUserIdsAndUsernames() {
-        Map<Long, String> allUserIdsAndUsernames = new LinkedHashMap<>();
-        String sql = "SELECT user_id, username FROM users ORDER BY user_id;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-        while (results.next()) {
-        allUserIdsAndUsernames.put(results.getLong("user_id"), results.getString("username"));
-        }
-        return allUserIdsAndUsernames;
-    }
-
-    @Override
     public User findById(Long id) {
-        String sql = "SELECT user_id, username, password_hash FROM users WHERE user_id = ?;";
+        String sql = "SELECT user_id, username FROM users WHERE user_id = ?;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, id);
         if (results.next()) {
             return mapRowToUser(results);
@@ -56,7 +45,7 @@ public class JdbcUserDao implements UserDao {
     @Override
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT user_id, username, password_hash FROM users;";
+        String sql = "SELECT user_id, username FROM users;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while(results.next()) {
             User user = mapRowToUser(results);

@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
-@RequestMapping("/api/transfers")
+@RequestMapping("/api/transfers/")
 public class TransferController {
     private AccountDao accountDao;
     private TransferDao transferDao;
@@ -31,7 +31,7 @@ public class TransferController {
         return transferDao.getAllTransfers();
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(path = "{id}", method = RequestMethod.GET)
     public Transfer getTransferById(@PathVariable Long id, Principal whoIsLoggedIn) {
         String username = whoIsLoggedIn.getName();
         Long user_id = userDao.findIdByUsername(username);
@@ -44,20 +44,20 @@ public class TransferController {
         return transferDao.create(transfer);
     }
 
-    @RequestMapping(path = "/my-transfers", method = RequestMethod.GET)
+    @RequestMapping(path = "my-transfers", method = RequestMethod.GET)
     public List<Transfer> viewAllTransfersByUserId(Principal whoIsLoggedIn) {
         String username = whoIsLoggedIn.getName();
         Long userId = userDao.findIdByUsername(username);
         return transferDao.viewAllTransfersByUserId(userId);
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(path = "{id}", method = RequestMethod.PUT)
     public boolean update(@PathVariable Long id, @RequestBody Transfer transfer) {
         return transferDao.update(id, transfer);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(path = "{id}", method = RequestMethod.DELETE)
     public boolean delete(@PathVariable Long id) {
         return transferDao.delete(id);
     }

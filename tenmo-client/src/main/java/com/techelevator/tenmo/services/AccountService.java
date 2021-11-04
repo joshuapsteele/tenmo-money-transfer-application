@@ -1,15 +1,12 @@
 package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Account;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.net.http.HttpHeaders;
 
 public class AccountService {
     private static final String API_BASE_URL = "http://localhost:8080/api/";
@@ -17,6 +14,7 @@ public class AccountService {
 
     private String authToken = null;
 
+    // We need to determine where this method should be called from. Perhaps the App class?
     public void setAuthToken(String authToken){
         this.authToken = authToken;
     }
@@ -25,7 +23,7 @@ public class AccountService {
         Account account = null;
         try {
             ResponseEntity<Account> response =
-                    restTemplate.exchange(API_BASE_URL + "account" + accountId,
+                    restTemplate.exchange(API_BASE_URL + "accounts/" + accountId,
                             HttpMethod.GET, makeAuthEntity(), Account.class);
             account = response.getBody();
         } catch (RestClientResponseException| ResourceAccessException e){
@@ -34,26 +32,66 @@ public class AccountService {
         return account;
     }
 
-    public BigDecimal getAccountBalance(){ //Takes the above account
-        Account account = null;
-        try{
-            ResponseEntity<Account> response =
-                    restTemplate.exchange(API_BASE_URL + "account" + accountId,
-                            HttpMethod.GET, makeAuthEntity(), Account.class);
-            account = response.getBody();
+    // This way of retrieving the logged-in user's account balance makes use of the viewBalance() method
+    // in the AccountController (URL = "/api/accounts/my-account-balance").
+    public BigDecimal getAuthernticatedUserAccountBalance(Long accountId) {
+        BigDecimal authenticatedUserAccountBalance = null;
+        try {
+            ResponseEntity<BigDecimal> response =
+                    restTemplate.exchange(API_BASE_URL + "accounts/my-account-balance",
+                            HttpMethod.GET, makeAuthEntity(), BigDecimal.class);
+            authenticatedUserAccountBalance = response.getBody();
         } catch (RestClientResponseException| ResourceAccessException e){
-            System.out.println("Failed to retrieve account");
+            System.out.println("Failed to retrieve account balance");
         }
-        return account.getBalance();
+        return authenticatedUserAccountBalance;
     }
 
-    //Need to consult with Walt about this. Do we even need it since we don't need ADMIN users?
-    private HttpEntity<Void> makeAuthEntity(){
+    // JS: "Takes the above account"? Are you sure? Or just takes an ID? Let's discuss this.
+//    public BigDecimal getAccountBalance(Long accountId) {
+//        Account account = null;
+//        try{
+//            ResponseEntity<Account> response =
+//                    restTemplate.exchange(API_BASE_URL + "accounts/" + accountId,
+//                            HttpMethod.GET, makeAuthEntity(), Account.class);
+//            account = response.getBody();
+//        } catch (RestClientResponseException| ResourceAccessException e){
+//            System.out.println("Failed to retrieve account");
+//        }
+//        if (account != null) {
+//            return account.getBalance();
+//        }
+//        return null;
+//    }
+
+    public boolean update(Account updatedAccount) {
+        HttpEntity<Account> entity = makeAccountEntity(updatedAccount);
+
+        boolean success = false;
+        try {
+            restTemplate.put(API_BASE_URL + "accounts/" + updatedAccount.getId(), entity);
+            success = true;
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("Failed to update account.");
+        }
+        return success;
+    }
+
+    // We still need this because, even though we don't have ADMINs, our users still need tokens to authenticate,
+    // and this method is how the token gets bundled into the HTTP requests.
+    // The reason why HttpHeaders wasn't working before was that you imported the wrong one
+    // (java.net instead of the org.springframework one).
+    private HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(headers);
     }
 
-    // TODO Make sure that AccountService here on the client side matches up with AccountController on the server.
+    private HttpEntity<Account> makeAccountEntity(Account account) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(authToken);
+        return new HttpEntity<>(account, headers);
+    }
 
 }
