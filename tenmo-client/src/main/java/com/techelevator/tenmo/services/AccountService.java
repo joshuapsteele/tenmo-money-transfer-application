@@ -34,17 +34,17 @@ public class AccountService {
 
     // This way of retrieving the logged-in user's account balance makes use of the viewBalance() method
     // in the AccountController (URL = "/api/accounts/my-account-balance").
-    public BigDecimal getAuthernticatedUserAccountBalance(Long accountId) {
-        BigDecimal authenticatedUserAccountBalance = null;
+    public BigDecimal getUserAccountBalance(Long accountId) {
+        BigDecimal userAccountBalance = null;
         try {
             ResponseEntity<BigDecimal> response =
                     restTemplate.exchange(API_BASE_URL + "accounts/my-account-balance",
                             HttpMethod.GET, makeAuthEntity(), BigDecimal.class);
-            authenticatedUserAccountBalance = response.getBody();
+            userAccountBalance = response.getBody();
         } catch (RestClientResponseException| ResourceAccessException e){
             System.out.println("Failed to retrieve account balance");
         }
-        return authenticatedUserAccountBalance;
+        return userAccountBalance;
     }
 
     // JS: "Takes the above account"? Are you sure? Or just takes an ID? Let's discuss this.
