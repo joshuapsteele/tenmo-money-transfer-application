@@ -2,14 +2,15 @@ package com.techelevator.tenmo.model;
 
 public class User {
 
-	private Integer id;
+	// I think that the user_id here should be a "Long" instead of an "Integer." I, Josh, changed it.
+	private Long id;
 	private String username;
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 	
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

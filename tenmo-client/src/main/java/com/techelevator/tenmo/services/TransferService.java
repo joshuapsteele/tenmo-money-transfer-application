@@ -8,7 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 public class TransferService {
 
-    private static final String API_BASE_URL = "http://localhost:8080/user/";
+    // Our API BASE URL should be http://localhost:8080/api/
+    private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
 
     private String authToken = null; //Do I need for transfers or just refer to authUser?
