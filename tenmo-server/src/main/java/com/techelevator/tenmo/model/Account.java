@@ -1,18 +1,16 @@
 package com.techelevator.tenmo.model;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
 public class Account {
 
-    @Positive(message = "Account ID must be greater than 1")
     private Long accountId;
-
-    @Positive(message = "User ID must be greater than 1")
+    @NotBlank(message = "The userId field is required.")
     private Long userId;
-
-    @Positive(message = "Balance cannot be negative")
+    @Positive(message = "The balance cannot be negative")
     private BigDecimal balance;
 
     public Account() {
