@@ -8,8 +8,6 @@ import org.springframework.web.client.RestTemplate;
 
 public class TransferService {
 
-    // TODO Make sure that TransferService here on the client side matches up with TransferController on the server.
-
     // Our API BASE URL should be http://localhost:8080/api/
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
@@ -20,6 +18,8 @@ public class TransferService {
         this.authToken = authToken;
     }
 
+    // I think we should make this method a generic create Transfer instead of create SEND transfer,
+    // because we can always specify the transfer type inside of the Transfer object itself.
     public Transfer createTransfer(Transfer newTransfer){
         Transfer transfer = null;
         try {
@@ -36,6 +36,7 @@ public class TransferService {
         return null;
     }
 
+    // I think this method is good. I just added in an actual Transfer object to return.
     public Transfer getTransferById(Long transferID) {
         Transfer transfer = null;
         try {

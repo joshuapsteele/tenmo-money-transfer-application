@@ -26,12 +26,12 @@ public class UserController {
     }
 
     @RequestMapping(path = "", method = RequestMethod.GET)
-    public Map<Long, String> viewUserIdsAndUsernames() {
-        return userDao.listUserIdsAndUsernames();
+    public List<User> findAllUsers() {
+        return userDao.findAll();
     }
 
     @RequestMapping(path = "{id}", method = RequestMethod.GET)
-    public User getUserById(@PathVariable Long id) {
+    public User findUserById(@PathVariable Long id) {
         return userDao.findById(id);
     }
 

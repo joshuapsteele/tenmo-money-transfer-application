@@ -2,10 +2,12 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.*;
 
 public class UserService {
 
@@ -18,10 +20,31 @@ public class UserService {
         this.authToken = authToken;
     }
 
+    public User[] findAllUsers() {
+        User[] allUsers = null;
+        try {
+            ResponseEntity<User[]> response =
+                    restTemplate.exchange(API_BASE_URL + "users",
+                            HttpMethod.GET, makeAuthEntity(), User[].class);
+            allUsers = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("Users not found.");
+        }
+        return allUsers;
+    }
 
-
-
-
+    public User findUserById(Long id) {
+        User user = null;
+        try {
+            ResponseEntity<User> response =
+                    restTemplate.exchange(API_BASE_URL + "users/" + id,
+                            HttpMethod.GET, makeAuthEntity(), User.class);
+            user = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("User not found.");
+        }
+        return user;
+    }
 
     private HttpEntity<User> makeUserEntity(User user){
         HttpHeaders headers = new HttpHeaders();
