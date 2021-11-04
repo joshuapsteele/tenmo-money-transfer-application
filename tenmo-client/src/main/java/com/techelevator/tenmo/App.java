@@ -2,9 +2,9 @@ package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
-import com.techelevator.tenmo.services.AuthenticationService;
-import com.techelevator.tenmo.services.AuthenticationServiceException;
+import com.techelevator.tenmo.services.*;
 import com.techelevator.view.ConsoleService;
 import jdk.swing.interop.SwingInterOpUtils;
 import org.springframework.http.HttpMethod;
@@ -31,8 +31,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
 	
     private AuthenticatedUser currentUser;
+    private String currentUserToken = currentUser.getToken();
     private ConsoleService console;
     private AuthenticationService authenticationService;
+
+    private AccountService accountService = new AccountService();
+    private TransferService transferService = new TransferService();
+    private UserService userService = new UserService();
 
     public static void main(String[] args) {
     	App app = new App(
@@ -78,32 +83,68 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-    	/*Do I need to add a dependency for accounts here?
-			ResponseEntity<Account> response = restTemplate.exchange(API_BASE_URL + "balance",
-					HttpMethod.GET,
-					makeAuthEntity);
-		System.out.println("Your current balance is " + );
-    	 */
+    	BigDecimal currentBalance = accountService.getUserAccountBalance(currentUser.getUser().getId());
+		System.out.println("Your current balance is $" + currentBalance );
+		mainMenu();
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
-		
-	}
+		Transfer[] transfers = transferService.listTransfers();
+		System.out.println("-------------------------------------------");
+		System.out.println("\t\t\t\tTransfers");
+		System.out.println("\t\tID\t\tFrom/to\t\tAmount");
+		for (Transfer transfer : transfers) {
+			System.out.println(transfer.getTransferId() + "\t\t" + transfer.getAccountFrom() + "\t/\t" + transfer.getAccountTo() + "\t\t" + transfer.getAmount());
+		}
+		System.out.println("-------------------------------------------");
 
-	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
+		// FIGURE OUT HOW/WHERE TO ASK USER FOR INPUT HERE
+		// ASK THE USER WHICH TRANSFER THEY WANT MORE INFORMATION ABOUT
+		// GIVE THEM THE OPTION TO CANCEL WITH 0
+		// "Please enter transfer ID to view details (0 to cancel): " (CONSOLESERVICE CAN ASK FOR INPUT AND RECORD INPUT)
+		// After you get number from user (might need to parse String into integer and then cast to a long, or parse to a long), use the TransferService to getTransferById(Long id);
+		// After you get that Transfer, use the Transfer.toString() method;
 		
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
-		
+
+		// UserService findAllUsers();
+    	// Take User[] and print it pretty.
+
+    	/* LIST OF ALL USERS
+		-------------------------------------------
+				Users
+		ID          Name
+		-------------------------------------------
+		313         Bernice
+		54          Larry
+		---------
+
+		Enter ID of user you are sending to (0 to cancel):
+		Enter amount:*/
+
+		// Check account from and to IDs to make sure they're valid.
+		// Check account FROM balance (YOUR balance, if you're sending money) and make sure that it's greater than or equal to the transfer amount.
+		// IF NOT, DON'T ACTUALLY CREATE A TRANSFER OBJECT!
+
+		// After validation, CREATE TRANSFER OBJECT
+		// Use TransferService to tell the SERVER to create a new transfer in the database
+		// Use AccountService to tell the Server to update the balances of 2 separate accounts
+
 	}
 
 	private void requestBucks() {
-		// TODO Auto-generated method stub
-		
+		// Same structure, more or less, as above. Validate the numbers on the CLIENT SIDE before creating a Transfer Object.
+		// Transfer Object will have a DIFFERENT transfer_type_id and transfer_status than the sendBucks transfer.
+		// ASK user to approve or reject the transfer.
+		// DON'T tell the server to update account balances until the transfer is approved.
+
+	}
+
+	private void viewPendingRequests() {
+		// Get a Transfer[], but JUST Transfers that have a certain transfer_status_id.
+
 	}
 	
 	private void exitProgram() {
@@ -156,6 +197,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			} catch (AuthenticationServiceException e) {
 				System.out.println("LOGIN ERROR: "+e.getMessage());
 				System.out.println("Please attempt to login again.");
+			}
+		    if (currentUserToken != null) {
+		    	accountService.setAuthToken(currentUserToken);
+		    	transferService.setAuthToken(currentUserToken);
+		    	userService.setAuthToken(currentUserToken);
+			} else {
+				System.out.println("USER AUTHENTICATION ERROR: Please attempt to login again.");
 			}
 		}
 	}

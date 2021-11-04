@@ -76,6 +76,8 @@ public class JdbcTransferDao implements TransferDao{
         return transfer;
     }
 
+    // write FINDTRANSFERSBYTRANSFERSTATUSID
+
     @Override
     public boolean update(Long id, Transfer transferToUpdate) {
         String sql = "UPDATE transfers SET transfer_type_id = ?, transfer_status_id = ?, account_from = ?, " +
