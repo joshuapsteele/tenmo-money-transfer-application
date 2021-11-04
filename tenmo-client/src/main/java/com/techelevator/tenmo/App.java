@@ -84,12 +84,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewCurrentBalance() {
     	BigDecimal currentBalance = accountService.getUserAccountBalance(currentUser.getUser().getId());
-		System.out.println("Your current balance is $" + currentBalance );
-		mainMenu();
+		System.out.println("Your current balance is $" + currentBalance);
 	}
 
 	private void viewTransferHistory() {
 		Transfer[] transfers = transferService.listTransfers();
+		String prompt = "For further details on a transfer, enter its ID. " +
+				"Otherwise, press '0'"; //Prompt to pass into the console service's getUII method.
 		System.out.println("-------------------------------------------");
 		System.out.println("\t\t\t\tTransfers");
 		System.out.println("\t\tID\t\tFrom/to\t\tAmount");
@@ -97,6 +98,22 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			System.out.println(transfer.getTransferId() + "\t\t" + transfer.getAccountFrom() + "\t/\t" + transfer.getAccountTo() + "\t\t" + transfer.getAmount());
 		}
 		System.out.println("-------------------------------------------");
+
+		Long request = Long.valueOf(console.getUserInputInteger(prompt));
+		Transfer requestedTransfer = transferService.getTransferById(request);
+		requestedTransfer.toString();
+
+		/*
+		while (requestedTransfer != 0) { //Above gets the requested transfer, below loops until it
+			for (int i = 0; i < transfers.length; i++){ //finds the correct transfer, then displays its details, and breaks from loop.
+				if (transfers[i].getTransferId() == requestedTransfer){
+					transfers[i].toString();
+					break;
+				}
+			}
+			requestedTransfer = Long.valueOf(console.getUserInputInteger(prompt));
+		}
+		 */
 
 		// FIGURE OUT HOW/WHERE TO ASK USER FOR INPUT HERE
 		// ASK THE USER WHICH TRANSFER THEY WANT MORE INFORMATION ABOUT
@@ -122,7 +139,11 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		---------
 
 		Enter ID of user you are sending to (0 to cancel):
-		Enter amount:*/
+		Enter amount:
+
+		DM: If what I have for getting a specific transfer (above method), then we can replicate it
+		here for the Users. Then use the getUI method from console and parse the String it
+		returns into a BigDecimal. Then we can check appropriate IDs and balances. */
 
 		// Check account from and to IDs to make sure they're valid.
 		// Check account FROM balance (YOUR balance, if you're sending money) and make sure that it's greater than or equal to the transfer amount.
@@ -143,8 +164,17 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewPendingRequests() {
-		// Get a Transfer[], but JUST Transfers that have a certain transfer_status_id.
-
+		/* Get a Transfer[], but JUST Transfers that have a certain transfer_status_id.
+		System.out.println("-------------------------------------------");
+		System.out.println("\t\t\tPending Transfers");
+		System.out.println("\t\tID\t\tFrom/to\t\tAmount");
+		for (Transfer transfer : transfers) {
+			if(transfer.getTransferStatus == 2) {
+			System.out.println(transfer.getTransferId() + "\t\t" + transfer.getAccountFrom() + "\t/\t" + transfer.getAccountTo() + "\t\t" + transfer.getAmount());
+			}
+		}
+		System.out.println("-------------------------------------------");
+		 */
 	}
 	
 	private void exitProgram() {
