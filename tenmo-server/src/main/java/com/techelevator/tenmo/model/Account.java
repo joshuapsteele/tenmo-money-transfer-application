@@ -3,14 +3,23 @@ package com.techelevator.tenmo.model;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Account {
 //    private final JdbcTemplate jdbcTemplate;
+
+    @Positive(message = "Account ID must be greater than 1")
     private final Long accountId;
+
+    @Positive(message = "User ID must be greater than 1")
     private final Long userId;
+
+    @Positive(message = "Balance cannot be negative")
     private BigDecimal balance;
 
     public Account(Long accountId, Long userId, BigDecimal balance){
