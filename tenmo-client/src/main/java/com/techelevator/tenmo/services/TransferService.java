@@ -54,10 +54,29 @@ public class TransferService {
 //        return transfer;
 //    }
 
+    public Transfer[] listTransfers(){
+        Transfer[] userTransfers = null;
+        try{
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(API_BASE_URL + "transfers",
+                    HttpMethod.GET, makeAuthEntity(), Transfer[].class);
+            userTransfers = response.getBody();
+        } catch (RestClientResponseException|ResourceAccessException e){
+            System.out.println("Failed to retrieve transfers");
+        }
+        return userTransfers;
+    }
+
     private HttpEntity<Transfer> makeTransferEntity(Transfer transfer){
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(transfer, headers);
+    }
+
+    //Need to consult with Walt about this
+    private HttpEntity<Void> makeAuthEntity(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authToken);
+        return new HttpEntity<>(headers);
     }
 }
