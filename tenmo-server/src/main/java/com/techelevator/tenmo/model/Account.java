@@ -1,16 +1,18 @@
 package com.techelevator.tenmo.model;
 
+<<<<<<< HEAD
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+=======
+>>>>>>> 43ac32892d7c411d472c3695b1c2e3ad2f9f5a3b
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Account {
+<<<<<<< HEAD
 //    private final JdbcTemplate jdbcTemplate;
 
     @Positive(message = "Account ID must be greater than 1")
@@ -20,10 +22,17 @@ public class Account {
     private final Long userId;
 
     @Positive(message = "Balance cannot be negative")
+=======
+    private Long accountId;
+    private Long userId;
+>>>>>>> 43ac32892d7c411d472c3695b1c2e3ad2f9f5a3b
     private BigDecimal balance;
 
-    public Account(Long accountId, Long userId, BigDecimal balance){
-//        this.jdbcTemplate = jdbcTemplate;
+    public Account() {
+
+    }
+
+    public Account(Long accountId, Long userId, BigDecimal balance) {
         this.accountId = accountId;
         this.userId = userId;
         this.balance = balance;
@@ -33,8 +42,16 @@ public class Account {
         return accountId;
     }
 
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
+    }
+
     public Long getUserId() {
         return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public BigDecimal getBalance() {
@@ -45,23 +62,4 @@ public class Account {
         this.balance = balance;
     }
 
-    /*
-    THESE METHODS SHOULD GO ELSEWHERE, IN THE DAO AND CONTROLLER CLASSES
-    public List getTransfers(){
-        List<SqlRowSet> userTransfers = new ArrayList<>();
-        String sql = "SELECT * FROM transfers " +
-                "WHERE user_id = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
-        while (results.next()){
-            userTransfers.add(results);
-        }
-        return userTransfers;
-    }
-    
-    public Transfer getTransferById(Long transferId){
-        String sql = "SELECT * FROM transfers " +
-                "WHERE transfer_id = ?";
-        SqlRowSet requestTransfer = jdbcTemplate.queryForRowSet(sql, transferId);
-        return requestTransfer;
-    }*/
 }

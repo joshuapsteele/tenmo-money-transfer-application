@@ -1,7 +1,5 @@
 package com.techelevator.tenmo.model;
 
-import org.springframework.web.bind.annotation.RequestBody;
-
 import java.math.BigDecimal;
 
 public class Transfer {
