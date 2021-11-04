@@ -30,11 +30,24 @@ public class JdbcTransferDao implements TransferDao{
     */
 
     @Override
-    public Transfer createSendMoneyTransfer(Transfer sendMoneyTransferToCreate) {
+    public boolean create(Transfer transfer) {
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (2, 2, ?, ?, ?) RETURNING transfer_id";
-        Long newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, sendMoneyTransferToCreate.getAccountFrom(), sendMoneyTransferToCreate.getAccountTo(), sendMoneyTransferToCreate.getAmount()).longValue();
-        return findTransferByTransferId(sendMoneyTransferToCreate.getAccountFrom(), newTransferId);
+                "VALUES (?, ?, ?, ?, ?) RETURNING transfer_id";
+        return jdbcTemplate.queryForObject(sql, Integer.class, transfer.getTransferTypeId(),
+                transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(),
+                transfer.getAmount()).longValue() == 1;
+    }
+
+    @Override
+    public List<Transfer> getAllTransfers() {
+        List<Transfer> allTransfers = new ArrayList<>();
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
+                "FROM transfers;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+        while (results.next()) {
+            allTransfers.add(mapRowToTransfer(results));
+        }
+        return allTransfers;
     }
 
     // As an authenticated user of the system, I need to be able to see transfers I have sent or received.
@@ -64,17 +77,17 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public void update(Transfer transferToUpdate) {
+    public boolean update(Long id, Transfer transferToUpdate) {
         String sql = "UPDATE transfers SET transfer_type_id = ?, transfer_status_id = ?, account_from = ?, " +
                 "account_to = ?, amount = ? WHERE transfer_id = ?;";
-        jdbcTemplate.update(sql, transferToUpdate.getTransferTypeId(), transferToUpdate.getTransferStatusId(),
-                transferToUpdate.getAccountFrom(), transferToUpdate.getAccountTo(), transferToUpdate.getAmount());
+        return jdbcTemplate.update(sql, transferToUpdate.getTransferTypeId(), transferToUpdate.getTransferStatusId(),
+                transferToUpdate.getAccountFrom(), transferToUpdate.getAccountTo(), transferToUpdate.getAmount()) == 1;
     }
 
     @Override
-    public void delete(Long transferId) {
+    public boolean delete(Long id) {
         String sql = "DELETE FROM transfers WHERE transfer_id = ?;";
-        jdbcTemplate.update(sql, transferId);
+        return jdbcTemplate.update(sql, id) == 1;
     }
 
     private Transfer mapRowToTransfer(SqlRowSet rs) {

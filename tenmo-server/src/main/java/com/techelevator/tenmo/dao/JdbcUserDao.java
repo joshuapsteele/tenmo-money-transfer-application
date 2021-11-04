@@ -33,6 +33,16 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
+    public User findById(Long id) {
+        String sql = "SELECT user_id, username FROM users WHERE user_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, id);
+        if (results.next()) {
+            return mapRowToUser(results);
+        }
+        return null;
+    }
+
+    @Override
     public Long findIdByUsername(String username) {
         String sql = "SELECT user_id FROM users WHERE username ILIKE ?;";
         Long id = jdbcTemplate.queryForObject(sql, Long.class, username);
@@ -90,13 +100,15 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public User update(User userToUpdate) {
-        return null;
+    public boolean update(Long id, User userToUpdate) {
+        String sql = "UPDATE users SET username = ?, password_hash = ? WHERE user_id = ?;";
+        return jdbcTemplate.update(sql, userToUpdate.getUsername(), new BCryptPasswordEncoder().encode(userToUpdate.getPassword()), id) == 1;
     }
 
     @Override
-    public boolean delete(User userToDelete) {
-        return false;
+    public boolean delete(Long id) {
+        String sql = "DELETE FROM users WHERE user_id = ?;";
+        return jdbcTemplate.update(sql, id) == 1;
     }
 
     private User mapRowToUser(SqlRowSet rs) {
