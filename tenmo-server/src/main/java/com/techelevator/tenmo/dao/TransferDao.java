@@ -7,15 +7,17 @@ import java.util.List;
 
 public interface TransferDao {
 
-    Transfer createSendMoneyTransfer(Transfer sendMoneyTransferToCreate);
+    boolean create(Transfer transfer);
+
+    List<Transfer> getAllTransfers();
 
     List<Transfer> viewAllTransfersByUserId(Long userId);
 
     Transfer findTransferByTransferId(Long userId, Long transferId);
 
-    void update(Transfer transferToUpdate);
+    boolean update(Long id, Transfer transferToUpdate);
 
-    void delete(Long transferId);
+    boolean delete(Long id);
 
     /*
     As an authenticated user of the system, I need to be able to request a transfer of a specific amount of TE Bucks from another registered user.

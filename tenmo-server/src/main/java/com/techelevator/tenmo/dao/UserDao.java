@@ -11,6 +11,8 @@ public interface UserDao {
 
     List<User> findAll();
 
+    User findById(Long id);
+
     User findByUsername(String username);
 
     Long findIdByUsername(String username);
@@ -18,7 +20,7 @@ public interface UserDao {
     // As a user of the system, I need to be able to register myself with a username and password.
     boolean create(String username, String password);
 
-    User update(User userToUpdate);
+    boolean update(Long id, User userToUpdate);
 
-    boolean delete(User userToDelete);
+    boolean delete(Long id);
 }
