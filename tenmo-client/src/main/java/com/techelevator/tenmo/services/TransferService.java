@@ -8,6 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 public class TransferService {
 
+    // TODO Make sure that TransferService here on the client side matches up with TransferController on the server.
+
     // Our API BASE URL should be http://localhost:8080/api/
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
@@ -33,22 +35,24 @@ public class TransferService {
         return null;
     }
 
-    public Transfer getTransfer(Long transferID) {
-        Transfer transfer = null;
-        try {
-            ResponseEntity<Transfer> response =
-                    restTemplate.exchange(API_BASE_URL + "transfers/" + transferID,
-                            HttpMethod.GET,
-                            makeAuthEntity(), //I do realize this is an active error, I just want Walt's input
-                            Transfer.class);
+//    Commented this out for now.
 
-            transfer = response.getBody();
-        } catch (RestClientResponseException | ResourceAccessException e){
-            System.out.println("Transfer pull failed. ");
-        }
-        System.out.println("TransferService.getTransfer has not been implemented");
-        return transfer;
-    }
+//    public Transfer getTransfer(Long transferID) {
+//        Transfer transfer = null;
+//        try {
+//            ResponseEntity<Transfer> response =
+//                    restTemplate.exchange(API_BASE_URL + "transfers/" + transferID,
+//                            HttpMethod.GET,
+//                            makeAuthEntity(),
+//                            Transfer.class);
+//
+//            transfer = response.getBody();
+//        } catch (RestClientResponseException | ResourceAccessException e){
+//            System.out.println("Transfer pull failed. ");
+//        }
+//        System.out.println("TransferService.getTransfer has not been implemented");
+//        return transfer;
+//    }
 
     private HttpEntity<Transfer> makeTransferEntity(Transfer transfer){
         HttpHeaders headers = new HttpHeaders();
