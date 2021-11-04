@@ -64,15 +64,17 @@ public class Transfer {
         this.transferStatusId = transferStatusId;
     }
 
+    @Override
     public String toString(){
-        return "\n Transfer Details: " +
-                "" +
-                "ID:     " + transferId +
-                "From:   " + accountFrom +
-                "To:     " + accountTo +
-                "Type:   " + transferTypeId +
-                "Status: " + transferStatusId +
-                "Amount: " + amount +
-                "";
+        return "\n--------------------------------------------" +
+                "\n Transfer Details: " +
+                "\n--------------------------------------------" +
+                "\n ID:     " + transferId +
+                "\n From:   " + accountFrom +
+                "\n To:     " + accountTo +
+                "\n Type:   " + transferTypeId +
+                "\n Status: " + transferStatusId +
+                "\n Amount: " + amount +
+                "\n--------------------------------------------";
     }
 }

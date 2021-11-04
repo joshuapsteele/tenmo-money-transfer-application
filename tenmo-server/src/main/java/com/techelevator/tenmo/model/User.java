@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.model;
 
+import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -7,7 +8,9 @@ import java.util.Set;
 public class User {
 
    private Long id;
+   @NotBlank(message = "The username field is required.")
    private String username;
+   @NotBlank(message = "The password field is required.")
    private String password;
    private boolean activated;
    private Set<Authority> authorities = new HashSet<>();
