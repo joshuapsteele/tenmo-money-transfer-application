@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.services;
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
@@ -61,6 +62,18 @@ public class TransferService {
             System.out.println("Failed to retrieve transfers");
         }
         return userTransfers;
+    }
+
+    public boolean updateTransfer(Transfer transfer) {
+        HttpEntity<Transfer> entity = makeTransferEntity(transfer);
+        boolean success = false;
+        try {
+            restTemplate.exchange(API_BASE_URL + "transfers/" + transfer.getTransferId(), HttpMethod.PUT, entity, Transfer.class);
+            success = true;
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("Failed to update transfer.");
+        }
+        return success;
     }
 
     private HttpEntity<Transfer> makeTransferEntity(Transfer transfer){
