@@ -7,9 +7,9 @@ import java.math.BigDecimal;
 
 public class Account {
 
-    private Long account_id;
+    private Long accountId;
     @NotBlank(message = "The userId field is required.")
-    private Long user_id;
+    private Long userId;
     @Positive(message = "The balance cannot be negative")
     private BigDecimal balance;
 
@@ -17,26 +17,26 @@ public class Account {
 
     }
 
-    public Account(Long account_id, Long user_id, BigDecimal balance) {
-        this.account_id = account_id;
-        this.user_id = user_id;
+    public Account(Long accountId, Long userId, BigDecimal balance) {
+        this.accountId = accountId;
+        this.userId = userId;
         this.balance = balance;
     }
 
     public Long getAccountId() {
-        return account_id;
+        return accountId;
     }
 
-    public void setAccountId(Long account_id) {
-        this.account_id = account_id;
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
     public Long getUserId() {
-        return user_id;
+        return userId;
     }
 
-    public void setUserId(Long user_id) {
-        this.user_id = user_id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public BigDecimal getBalance() {

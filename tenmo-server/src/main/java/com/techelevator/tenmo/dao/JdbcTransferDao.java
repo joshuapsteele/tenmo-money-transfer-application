@@ -35,6 +35,9 @@ public class JdbcTransferDao implements TransferDao{
                 "VALUES (?, ?, ?, ?, ?);";
         return jdbcTemplate.update(sql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()) == 1;
 
+        // TODO ADD VALIDATION CHECK HERE TO MAKE SURE THAT THE USER/ACCOUNT IDS ARE IN THE DATABASE.
+        // SEND 400 + MESSAGE
+
 //                jdbcTemplate.queryForObject(sql, Integer.class, transfer.getTransferTypeId(),
 //                transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(),
 //                transfer.getAmount()).longValue() == 1;
