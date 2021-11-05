@@ -8,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 
 public class TransferService {
 
-    // Our API BASE URL should be http://localhost:8080/api/
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -18,22 +17,20 @@ public class TransferService {
         this.authToken = authToken;
     }
 
-    // I think we should make this method a generic create Transfer instead of create SEND transfer,
-    // because we can always specify the transfer type inside of the Transfer object itself.
-    public Transfer createTransfer(Transfer newTransfer){
-        Transfer transfer = null;
+    public boolean createTransfer(Transfer newTransfer){
+        boolean wasCreated = false;
         try {
-            ResponseEntity<Transfer> response = restTemplate.exchange(API_BASE_URL + "transfers",
+            restTemplate.exchange(API_BASE_URL + "transfers",
                     HttpMethod.POST,
                     makeTransferEntity(newTransfer),
                     Transfer.class);
-            transfer = response.getBody();
-            return transfer;
+            wasCreated = true;
+            return wasCreated;
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Transfer failed. Try again.");
         }
-        System.out.println("TransferService.sendTransfer() has not been implemented.");
-        return null;
+        System.out.println("TransferService.createTransfer() has not been implemented.");
+        return false;
     }
 
     // I think this method is good. I just added in an actual Transfer object to return.

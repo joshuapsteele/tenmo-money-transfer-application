@@ -23,10 +23,13 @@ public class JdbcUserDao implements UserDao {
 
     @Override
     public User findById(Long id) {
+        User user = new User();
         String sql = "SELECT user_id, username FROM users WHERE user_id = ?;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, id);
         if (results.next()) {
-            return mapRowToUser(results);
+            user.setId(results.getLong("user_id"));
+            user.setUsername(results.getString("username"));
+            return user;
         }
         return null;
     }
@@ -43,16 +46,16 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public User[] findAll() {
-        User[] users = null;
-        List<User> usersList = new ArrayList<>();
+    public List<User> findAll() {
+        List<User> users = new ArrayList<>();
         String sql = "SELECT user_id, username FROM users;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while(results.next()) {
-            User user = mapRowToUser(results);
-            usersList.add(user);
+            User user = new User();
+            user.setId(results.getLong("user_id"));
+            user.setUsername(results.getString("username"));
+            users.add(user);
         }
-        users = (User[]) usersList.toArray();
         return users;
     }
 
