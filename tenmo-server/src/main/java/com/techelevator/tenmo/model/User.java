@@ -10,7 +10,7 @@ public class User {
    private Long id;
    @NotBlank(message = "The username field is required.")
    private String username;
-   @NotBlank(message = "The password field is required.")
+   // @NotBlank(message = "The password field is required.")
    private String password;
    private boolean activated;
    private Set<Authority> authorities = new HashSet<>();
@@ -76,7 +76,7 @@ public class User {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       User user = (User) o;
-      return id == user.id &&
+      return Objects.equals(id, user.id) &&
               activated == user.activated &&
               Objects.equals(username, user.username) &&
               Objects.equals(password, user.password) &&
