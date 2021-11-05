@@ -155,11 +155,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		String transferAmountPrompt = "Enter amount: ";
 		BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
 
-		if (transferAmount.compareTo(accountService.getUserAccountBalance(currentUser.getUser().getUserId())) == 1) {
-			System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
-			return;
-		}
-
 		// Perhaps make another constructor here.
 		Transfer newTransfer = new Transfer();
 		newTransfer.setAccountFrom(accountIdTransferFrom);
@@ -183,6 +178,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			return;
 		}
 
+		User requestedSender = userService.findUserById(userIdTransferFrom);
+
 		Account accountTransferFrom = accountService.getAccountByUserId(userIdTransferFrom);
 		Long accountIdTransferFrom = accountTransferFrom.getAccountId();
 
@@ -192,12 +189,17 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		String transferAmountPrompt = "Enter amount: ";
 		BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
 
+		if (transferAmount.compareTo(accountService.getUserAccountBalance(requestedSender.getUserId())) == 1) {
+			System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
+			return;
+		}
+
 		Transfer newTransfer = new Transfer();
 		newTransfer.setAccountFrom(accountIdTransferFrom);
 		newTransfer.setAccountTo(accountIdTransferTo);
 		newTransfer.setAmount(transferAmount);
-		newTransfer.setTransferTypeId(1); // REQUEST
-		newTransfer.setTransferStatusId(1); // PENDING
+		newTransfer.setTransferTypeId(2); // REQUEST
+		newTransfer.setTransferStatusId(2); // PENDING
 
 		// Tells server to create new transfer and store in the database.
 		transferService.createTransfer(newTransfer);

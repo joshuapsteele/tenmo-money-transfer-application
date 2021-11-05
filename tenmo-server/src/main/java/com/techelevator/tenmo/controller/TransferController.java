@@ -45,27 +45,21 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "", method = RequestMethod.POST)
-    public boolean create(@RequestBody Transfer transfer) {
+    public boolean create(@RequestBody Transfer transfer) throws TransferControllerException {
         Account accountFrom = accountDao.getAccountById(transfer.getAccountFrom());
         Account accountTo = accountDao.getAccountById(transfer.getAccountTo());
         BigDecimal transferAmount = transfer.getAmount();
 
         if (accountFrom == null || accountTo == null) {
-            // SEND 400 BAD REQUEST + MESSAGE: "UNABLE TO RETRIEVE ACCOUNTS"
-            // CUSTOM EXCEPTION?
+            throw new TransferControllerException("UNABLE TO RETRIEVE ACCOUNTS");
         } else if (transferAmount.compareTo(accountFrom.getBalance()) == 1) {
-            // SEND 400 BAD REQUEST + MESSAGE: "INSUFFICIENT FUNDS, TRANSFER AMOUNT GREATER THAN ACCOUNT BALANCE"
-            // CUSTOM EXCEPTION?
+            throw new TransferControllerException("INSUFFICIENT FUNDS, TRANSFER AMOUNT GREATER THAN ACCOUNT BALANCE");
         }
 
         // TODO: CREATE TRANSFER FIRST, AND THEN LATER CHECK STATUS BEFORE BALANCE CHANGES.
-        // TODO: IMPLEMENT A STATUS CHECK HERE, BECAUSE WE DON'T CHANGE BALANCES ON REQUEST TRANSFERS UNTIL STATUS IS APPROVED, NOT PENDING.
 
-        if (accountFrom != null) {
-            accountDao.decreaseBalance(accountFrom.getAccountId(), transferAmount);
-        }
-        if (accountTo != null) {
-            accountDao.increaseBalance(accountTo.getAccountId(), transferAmount);
+        if (transfer.getTransferStatusId() == 1){
+            isApproved(transfer, accountFrom, accountTo, transferAmount);
         }
 
         return transferDao.create(transfer);
@@ -80,6 +74,7 @@ public class TransferController {
 
     @RequestMapping(path = "{id}", method = RequestMethod.PUT)
     public boolean update(@PathVariable Long id, @RequestBody Transfer transfer) {
+
         return transferDao.update(id, transfer);
     }
 
@@ -88,4 +83,14 @@ public class TransferController {
     public boolean delete(@PathVariable Long id) {
         return transferDao.delete(id);
     }
+
+    private void isApproved(Transfer transfer, Account accountFrom, Account accountTo, BigDecimal transferAmount){
+        if (transferAmount.compareTo(accountFrom.getBalance()) == 2 && accountFrom != null) {
+            accountDao.decreaseBalance(accountFrom.getAccountId(), transferAmount);
+        }
+        if (transferAmount.compareTo(accountFrom.getBalance()) == 2 && accountTo != null) {
+            accountDao.increaseBalance(accountTo.getAccountId(), transferAmount);
+        }
+    }
+
 }
