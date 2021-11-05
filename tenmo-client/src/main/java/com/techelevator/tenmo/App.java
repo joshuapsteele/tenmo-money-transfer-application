@@ -81,7 +81,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewCurrentBalance() {
     	BigDecimal currentBalance = accountService.getUserAccountBalance(currentUser.getUser().getId());
-		System.out.println("Your current balance is $" + currentBalance);
+		String currentBalanceFormatted = console.displayAsCurrency(currentBalance);
+    	System.out.println("Your current balance is $" + currentBalanceFormatted);
 	}
 
 	private void viewTransferHistory() {
