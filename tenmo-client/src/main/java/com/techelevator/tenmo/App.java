@@ -115,7 +115,7 @@ public class App {
     private void viewTransferDetails() {
         viewTransferHistory();
         String prompt = "For further details on a transfer, enter its ID " +
-                "(otherwise, press '0' to exit): ";
+                "(otherwise, press '0' to exit)";
         Long request = Long.valueOf(console.getUserInputInteger(prompt));
         if (request == 0) {
             return;
@@ -146,7 +146,7 @@ public class App {
     private void sendBucks() {
         listAllUsers();
 
-        String userIdPrompt = "Enter ID of user you are sending to (0 to cancel): ";
+        String userIdPrompt = "Enter ID of user you are sending to (0 to cancel)";
         Long userIdTransferTo = Long.valueOf(console.getUserInputInteger(userIdPrompt));
 
         if (userIdTransferTo == 0) {
@@ -159,7 +159,7 @@ public class App {
         Account accountTransferTo = accountService.getAccountByUserId(userIdTransferTo);
         Long accountIdTransferTo = accountTransferTo.getAccountId();
 
-        String transferAmountPrompt = "Enter amount: ";
+        String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
 
         if (transferAmount.compareTo(accountService.getUserAccountBalance(currentUser.getUser().getUserId())) == 1) {
@@ -183,7 +183,7 @@ public class App {
     private void requestBucks() {
         listAllUsers();
 
-        String userIdPrompt = "Enter ID of user you are REQUESTING money FROM (0 to cancel): ";
+        String userIdPrompt = "Enter ID of user you are REQUESTING money FROM (0 to cancel)";
         Long userIdTransferFrom = Long.valueOf(console.getUserInputInteger(userIdPrompt));
 
         if (userIdTransferFrom == 0) {
@@ -196,7 +196,7 @@ public class App {
         Account accountTransferTo = accountService.getAccountByUserId(currentUser.getUser().getUserId());
         Long accountIdTransferTo = accountTransferTo.getAccountId();
 
-        String transferAmountPrompt = "Enter amount: ";
+        String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
 
         Transfer newTransfer = new Transfer();
@@ -235,7 +235,7 @@ public class App {
             }
         }
         System.out.println("-------------------------------------------");
-        String prompt = "Please enter transfer ID to approve/reject (0 to cancel): ";
+        String prompt = "Please enter transfer ID to approve/reject (0 to cancel)";
         Long request = Long.valueOf(console.getUserInputInteger(prompt));
         if (request == 0) {
             return;
