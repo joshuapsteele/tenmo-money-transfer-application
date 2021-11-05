@@ -1,8 +1,10 @@
 package com.techelevator.tenmo.model;
 
+import com.techelevator.tenmo.services.AccountService;
 import io.cucumber.core.internal.gherkin.StringUtils;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 
 public class Transfer {
     private Long transferId;
@@ -12,7 +14,7 @@ public class Transfer {
     private int transferTypeId;
     private int transferStatusId;
 
-    public Transfer(){
+    public Transfer() {
 
     }
 
@@ -64,17 +66,44 @@ public class Transfer {
         this.transferStatusId = transferStatusId;
     }
 
+    public String displayAsCurrency(BigDecimal bigDecimal) {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance();
+        return formatter.format(bigDecimal);
+    }
+
+    public String displayTransferType(Integer transferTypeId) {
+        if (transferTypeId == 1) {
+            return "Request Money";
+        } else if (transferTypeId == 2) {
+            return "Send Money";
+        }
+        return transferTypeId.toString();
+    }
+
+    public String displayTransferStatus(Integer transferStatusId) {
+        if (transferStatusId == 1) {
+            return "Pending";
+        } else if (transferStatusId == 2) {
+            return "Approved";
+        } else if (transferStatusId == 3) {
+            return "Rejected";
+        } else {
+            return transferStatusId.toString();
+        }
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
+
         return "\n--------------------------------------------" +
                 "\n Transfer Details: " +
                 "\n--------------------------------------------" +
-                "\n ID:     " + transferId +
-                "\n From:   " + accountFrom +
-                "\n To:     " + accountTo +
-                "\n Type:   " + transferTypeId +
-                "\n Status: " + transferStatusId +
-                "\n Amount: " + amount +
+                "\n Transfer ID:    " + transferId +
+                "\n From Account:   " + accountFrom + // Would love to display username here, but I'm not sure the best way how.
+                "\n To Account:     " + accountTo + // Would love to display username here, but I'm not sure the best way how.
+                "\n Type:           " + displayTransferType(transferTypeId) +
+                "\n Status:         " + displayTransferStatus(transferStatusId) +
+                "\n Amount:         " + displayAsCurrency(amount) +
                 "\n--------------------------------------------";
     }
 }

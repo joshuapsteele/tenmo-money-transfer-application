@@ -46,8 +46,8 @@ public class TransferController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "", method = RequestMethod.POST)
     public boolean create(@RequestBody Transfer transfer) {
-        Account accountFrom = accountDao.getAccountById(transfer.getAccountFrom());
-        Account accountTo = accountDao.getAccountById(transfer.getAccountTo());
+        Account accountFrom = accountDao.getAccountByAccountId(transfer.getAccountFrom());
+        Account accountTo = accountDao.getAccountByAccountId(transfer.getAccountTo());
         BigDecimal transferAmount = transfer.getAmount();
 
         if (accountFrom == null || accountTo == null) {
@@ -59,15 +59,13 @@ public class TransferController {
         }
 
         // TODO: CREATE TRANSFER FIRST, AND THEN LATER CHECK STATUS BEFORE BALANCE CHANGES.
-        // TODO: IMPLEMENT A STATUS CHECK HERE, BECAUSE WE DON'T CHANGE BALANCES ON REQUEST TRANSFERS UNTIL STATUS IS APPROVED, NOT PENDING.
 
-        if (accountFrom != null) {
+        if (transfer.getTransferStatusId() == 2 && accountFrom != null) {
             accountDao.decreaseBalance(accountFrom.getAccountId(), transferAmount);
         }
-        if (accountTo != null) {
+        if (transfer.getTransferStatusId() == 2 && accountTo != null) {
             accountDao.increaseBalance(accountTo.getAccountId(), transferAmount);
         }
-
         return transferDao.create(transfer);
     }
 
@@ -80,6 +78,8 @@ public class TransferController {
 
     @RequestMapping(path = "{id}", method = RequestMethod.PUT)
     public boolean update(@PathVariable Long id, @RequestBody Transfer transfer) {
+
+
         return transferDao.update(id, transfer);
     }
 
@@ -88,4 +88,5 @@ public class TransferController {
     public boolean delete(@PathVariable Long id) {
         return transferDao.delete(id);
     }
+
 }
