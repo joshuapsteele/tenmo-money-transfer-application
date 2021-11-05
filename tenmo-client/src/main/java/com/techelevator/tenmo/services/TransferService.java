@@ -52,11 +52,11 @@ public class TransferService {
     public Transfer[] listTransfers(){
         Transfer[] userTransfers = null;
         try{
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(API_BASE_URL + "transfers",
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(API_BASE_URL + "transfers/",
                     HttpMethod.GET, makeAuthEntity(), Transfer[].class);
             userTransfers = response.getBody();
         } catch (RestClientResponseException|ResourceAccessException e){
-            System.out.println("Failed to retrieve transfers");
+            System.out.println("Failed to retrieve transfers" + e.getMessage());
         }
         return userTransfers;
     }

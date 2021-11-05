@@ -93,12 +93,14 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
+    	// ONLY VIEW CURRENT USERS TRANSFERS
 		Transfer[] transfers = transferService.listTransfers();
 		if (transfers == null || transfers.length == 0) {
 			System.out.println("Unable to retrieve transfer history.");
 			return;
 		}
 
+		// TODO: DISPLAY USERNAMES INSTEAD OF ACCOUNT IDS.
 		System.out.println("-------------------------------------------");
 		System.out.println("\t\t\t\tTransfers");
 		System.out.println("\t\tID\t\tFrom/to\t\tAmount");
