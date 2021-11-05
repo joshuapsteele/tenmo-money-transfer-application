@@ -18,7 +18,7 @@ public class TransferService {
         this.authToken = authToken;
     }
 
-    public boolean createTransfer(Transfer newTransfer){
+    public boolean createTransfer(Transfer newTransfer) {
         boolean wasCreated = false;
         try {
             ResponseEntity<Boolean> response = restTemplate.exchange(API_BASE_URL + "transfers/",
@@ -43,22 +43,34 @@ public class TransferService {
                             Transfer.class);
 
             transfer = response.getBody();
-        } catch (RestClientResponseException | ResourceAccessException e){
+        } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Transfer pull failed. ");
         }
         return transfer;
     }
 
-    public Transfer[] listTransfers(){
-        Transfer[] userTransfers = null;
-        try{
+    public Transfer[] listAllTransfers() {
+        Transfer[] allTransfers = null;
+        try {
             ResponseEntity<Transfer[]> response = restTemplate.exchange(API_BASE_URL + "transfers/",
                     HttpMethod.GET, makeAuthEntity(), Transfer[].class);
-            userTransfers = response.getBody();
-        } catch (RestClientResponseException|ResourceAccessException e){
+            allTransfers = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to retrieve transfers" + e.getMessage());
         }
-        return userTransfers;
+        return allTransfers;
+    }
+
+    public Transfer[] listAllTransfersCurrentUser() {
+        Transfer[] currentUserTransfers = null;
+        try {
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(API_BASE_URL + "transfers/my-transfers",
+                    HttpMethod.GET, makeAuthEntity(), Transfer[].class);
+            currentUserTransfers = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("Failed to retrieve transfers" + e.getMessage());
+        }
+        return currentUserTransfers;
     }
 
     public boolean updateTransfer(Transfer transfer) {
@@ -73,14 +85,14 @@ public class TransferService {
         return success;
     }
 
-    private HttpEntity<Transfer> makeTransferEntity(Transfer transfer){
+    private HttpEntity<Transfer> makeTransferEntity(Transfer transfer) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(transfer, headers);
     }
 
-    private HttpEntity<Void> makeAuthEntity(){
+    private HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(headers);

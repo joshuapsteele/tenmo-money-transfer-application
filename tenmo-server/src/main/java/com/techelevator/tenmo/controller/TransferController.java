@@ -46,8 +46,8 @@ public class TransferController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "", method = RequestMethod.POST)
     public boolean create(@RequestBody Transfer transfer) {
-        Account accountFrom = accountDao.getAccountById(transfer.getAccountFrom());
-        Account accountTo = accountDao.getAccountById(transfer.getAccountTo());
+        Account accountFrom = accountDao.getAccountByAccountId(transfer.getAccountFrom());
+        Account accountTo = accountDao.getAccountByAccountId(transfer.getAccountTo());
         BigDecimal transferAmount = transfer.getAmount();
 
         if (accountFrom == null || accountTo == null) {

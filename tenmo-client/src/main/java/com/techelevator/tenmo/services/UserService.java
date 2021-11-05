@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.services;
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import org.springframework.http.*;
@@ -13,6 +14,8 @@ public class UserService {
 
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
+    private final AccountService accountService = new AccountService();
+    private final TransferService transferService = new TransferService();
 
     private String authToken = null;
 
@@ -44,6 +47,14 @@ public class UserService {
             System.out.println("User not found.");
         }
         return user;
+    }
+
+    public String getUsernameByAccountId(Long accountId) {
+        Account account = accountService.getAccountByAccountId(accountId);
+        Long userId = account.getUserId();
+        User user = findUserById(userId);
+        String username = user.getUsername();
+        return username;
     }
 
     private HttpEntity<User> makeUserEntity(User user){

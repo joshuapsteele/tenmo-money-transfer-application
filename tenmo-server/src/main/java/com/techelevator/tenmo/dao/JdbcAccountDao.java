@@ -29,15 +29,21 @@ public class JdbcAccountDao implements AccountDao{
         return allAccounts;
     }
 
-    // TODO USE THIS METHOD TO VALIDATE TRANSFER BEFORE CREATING TRANSFER
     @Override
-    public Account getAccountById(Long id) {
+    public Account getAccountByAccountId(Long accountId) {
         String sql = "SELECT account_id, user_id, balance FROM accounts WHERE account_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, id);
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
         if (results.next()) {
             return mapRowToAccount(results);
         }
         return null;
+    }
+
+    @Override
+    public String getUsernameByAccountId(Long account_id) {
+        String sql = "SELECT username FROM users JOIN accounts USING (user_id) WHERE account_id = ?;";
+        String username = jdbcTemplate.queryForObject(sql, String.class, account_id);
+        return username;
     }
 
     @Override
