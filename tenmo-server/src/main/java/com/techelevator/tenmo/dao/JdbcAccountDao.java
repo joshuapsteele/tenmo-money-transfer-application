@@ -29,6 +29,7 @@ public class JdbcAccountDao implements AccountDao{
         return allAccounts;
     }
 
+    // TODO USE THIS METHOD TO VALIDATE TRANSFER BEFORE CREATING TRANSFER
     @Override
     public Account getAccountById(Long id) {
         String sql = "SELECT account_id, user_id, balance FROM accounts WHERE account_id = ?;";
@@ -64,12 +65,14 @@ public class JdbcAccountDao implements AccountDao{
         return balance;
     }
 
+    // TODO CALL THESE METHODS TO HAVE SERVER UPDATE ACCOUNT BALANCES.
     @Override
     public boolean increaseBalance(Long accountToId, BigDecimal amountToIncrease) {
         String sql = "UPDATE accounts SET balance = balance + ? WHERE account_id = ?;";
         return jdbcTemplate.update(sql, amountToIncrease, accountToId) == 1;
     }
 
+    // TODO CALL THESE METHODS TO HAVE SERVER UPDATE ACCOUNT BALANCES.
     @Override
     public boolean decreaseBalance(Long accountFromId, BigDecimal amountToDecrease) {
         String sql = "UPDATE accounts SET balance = balance - ? WHERE account_id = ?;";

@@ -82,7 +82,7 @@ public class AccountService {
 
         boolean success = false;
         try {
-            restTemplate.put(API_BASE_URL + "accounts/" + updatedAccount.getId(), entity);
+            restTemplate.put(API_BASE_URL + "accounts/" + updatedAccount.getAccountId(), entity);
             success = true;
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to update account.");

@@ -27,7 +27,7 @@ public class JdbcUserDao implements UserDao {
         String sql = "SELECT user_id, username FROM users WHERE user_id = ?;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, id);
         if (results.next()) {
-            user.setId(results.getLong("user_id"));
+            user.setUserId(results.getLong("user_id"));
             user.setUsername(results.getString("username"));
             return user;
         }
@@ -52,7 +52,7 @@ public class JdbcUserDao implements UserDao {
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while(results.next()) {
             User user = new User();
-            user.setId(results.getLong("user_id"));
+            user.setUserId(results.getLong("user_id"));
             user.setUsername(results.getString("username"));
             users.add(user);
         }
@@ -107,7 +107,7 @@ public class JdbcUserDao implements UserDao {
 
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
-        user.setId(rs.getLong("user_id"));
+        user.setUserId(rs.getLong("user_id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password_hash"));
         user.setActivated(true);

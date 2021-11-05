@@ -21,20 +21,18 @@ public class TransferService {
     public boolean createTransfer(Transfer newTransfer){
         boolean wasCreated = false;
         try {
-            restTemplate.exchange(API_BASE_URL + "transfers",
+            ResponseEntity<Boolean> response = restTemplate.exchange(API_BASE_URL + "transfers/",
                     HttpMethod.POST,
                     makeTransferEntity(newTransfer),
-                    Transfer.class);
-            wasCreated = true;
+                    Boolean.class);
+            wasCreated = response.getBody();
             return wasCreated;
         } catch (RestClientResponseException | ResourceAccessException e) {
-            System.out.println("Transfer failed. Try again.");
+            System.out.println("Transfer failed. Try again." + e.getMessage());
         }
-        System.out.println("TransferService.createTransfer() has not been implemented.");
         return false;
     }
 
-    // I think this method is good. I just added in an actual Transfer object to return.
     public Transfer getTransferById(Long transferID) {
         Transfer transfer = null;
         try {
@@ -48,7 +46,6 @@ public class TransferService {
         } catch (RestClientResponseException | ResourceAccessException e){
             System.out.println("Transfer pull failed. ");
         }
-        System.out.println("TransferService.getTransfer has not been implemented");
         return transfer;
     }
 

@@ -87,7 +87,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-    	BigDecimal currentBalance = accountService.getUserAccountBalance(currentUser.getUser().getId());
+    	BigDecimal currentBalance = accountService.getUserAccountBalance(currentUser.getUser().getUserId());
 		String currentBalanceFormatted = console.displayAsCurrency(currentBalance);
     	System.out.println("Your current balance is " + currentBalanceFormatted);
 	}
@@ -130,7 +130,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println("ID\t\t\t\tNAME");
 		System.out.println("-------------------------------------------");
 		for (User user : allUsers) {
-			System.out.println(user.getId() + "\t\t\t\t" + user.getUsername());
+			System.out.println(user.getUserId() + "\t\t\t\t" + user.getUsername());
 		}
 		System.out.println("---------");
 		System.out.println();
@@ -139,7 +139,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private void sendBucks() {
     	listAllUsers();
 
-		// TODO FIGURE OUT THE BEST, MOST EFFICIENT WAY TO CHECK THAT THE ENTERED USERID IS VALID (EXISTS IN THE DATABASE).
 		String userIdPrompt = "Enter ID of user you are sending to (0 to cancel): ";
 		Long userIdTransferTo = Long.valueOf(console.getUserInputInteger(userIdPrompt));
 
@@ -147,20 +146,21 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			return;
 		}
 
-		Account accountTransferFrom = accountService.getAccountByUserId(currentUser.getUser().getId());
-		Long accountIdTransferFrom = accountTransferFrom.getId();
+		Account accountTransferFrom = accountService.getAccountByUserId(currentUser.getUser().getUserId());
+		Long accountIdTransferFrom = accountTransferFrom.getAccountId();
 
 		Account accountTransferTo = accountService.getAccountByUserId(userIdTransferTo);
-		Long accountIdTransferTo = accountTransferTo.getId();
+		Long accountIdTransferTo = accountTransferTo.getAccountId();
 
 		String transferAmountPrompt = "Enter amount: ";
 		BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
 
-		if (transferAmount.compareTo(accountService.getUserAccountBalance(currentUser.getUser().getId())) == 1) {
+		if (transferAmount.compareTo(accountService.getUserAccountBalance(currentUser.getUser().getUserId())) == 1) {
 			System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
 			return;
 		}
 
+		// Perhaps make another constructor here.
 		Transfer newTransfer = new Transfer();
 		newTransfer.setAccountFrom(accountIdTransferFrom);
 		newTransfer.setAccountTo(accountIdTransferTo);
@@ -168,22 +168,11 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		newTransfer.setTransferTypeId(2); // SEND
 		newTransfer.setTransferStatusId(2); // APPROVED
 
-		// Decreases the balance of the FROM account by the transfer amount.
-		accountTransferFrom.setBalance(accountTransferFrom.getBalance().subtract(transferAmount));
-
-		// Decreases the balance of the TO account by the transfer amount.
-		accountTransferTo.setBalance(accountTransferTo.getBalance().add(transferAmount));
-
-		// Tells server to create new transfer and store in the database.
 		transferService.createTransfer(newTransfer);
 
-		// Tells server to update the FROM account with the new balance.
-		accountService.update(accountTransferFrom);
-
-		// Tells server to update the TO account with the new balance.
-		accountService.update(accountTransferTo);
 	}
 
+	// TODO IMPLEMENT STRUCTURAL/DESIGN CHANGES FROM ABOVE TO THIS METHOD BELOW
 	private void requestBucks() {
     	listAllUsers();
 
@@ -195,10 +184,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		}
 
 		Account accountTransferFrom = accountService.getAccountByUserId(userIdTransferFrom);
-		Long accountIdTransferFrom = accountTransferFrom.getId();
+		Long accountIdTransferFrom = accountTransferFrom.getAccountId();
 
-		Account accountTransferTo = accountService.getAccountByUserId(currentUser.getUser().getId());
-		Long accountIdTransferTo = accountTransferTo.getId();
+		Account accountTransferTo = accountService.getAccountByUserId(currentUser.getUser().getUserId());
+		Long accountIdTransferTo = accountTransferTo.getAccountId();
 
 		String transferAmountPrompt = "Enter amount: ";
 		BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
@@ -212,6 +201,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 		// Tells server to create new transfer and store in the database.
 		transferService.createTransfer(newTransfer);
+
+		// TODO FIGURE OUT HOW/WHERE TO PAUSE THE PROCESS, BECAUSE WE DON'T WANT TO CHANGE THE BALANCES UNTIL THE TRANSFER STATUS CHANGES FROM PENDING TO APPROVED.
 
 		// Same structure, more or less, as above. Validate the numbers on the CLIENT SIDE before creating a Transfer Object.
 		// Transfer Object will have a DIFFERENT transfer_type_id and transfer_status than the sendBucks transfer.
@@ -247,9 +238,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				// APPROVE TRANSFER
 				requestedTransfer.setTransferStatusId(2);
 				transferService.updateTransfer(requestedTransfer);
+				// TODO HAVE THE SERVER UPDATE THE BALANCES. NOT THE CLIENT.
+
 			} else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
 				requestedTransfer.setTransferStatusId(3);
 				transferService.updateTransfer(requestedTransfer);
+				// TODO HAVE THE SERVER UPDATE THE BALANCES. NOT THE CLIENT.
+
 			} else {
 				return;
 			}
@@ -300,7 +295,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		currentUser = null;
 		while (currentUser == null) //will keep looping until user is logged in
 
-			// TODO FIND A WAY TO GIVE THE USER AN OPTION TO BREAK OUT OF THIS LOOP
+			// TODO FIND A WAY TO GIVE THE USER AN OPTION TO BREAK OUT OF THIS LOOP?
 		{
 			UserCredentials credentials = collectUserCredentials();
 		    try {
