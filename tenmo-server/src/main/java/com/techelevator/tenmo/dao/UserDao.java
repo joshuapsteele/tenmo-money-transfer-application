@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface UserDao {
 
-    User[] findAll();
+    List<User> findAll();
 
     User findById(Long id);
 

@@ -1,20 +1,13 @@
 package com.techelevator.tenmo.model;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class Transfer {
+
     private Long transferId;
-    @NotBlank(message = "The accountFrom field is required.")
     private Long accountFrom;
-    @NotBlank(message = "The accountTo field is required.")
     private Long accountTo;
-    @Positive(message = "The amount to transfer must be greater than 0.")
     private BigDecimal amount;
-    @NotBlank(message = "The transferTypeId field is required.")
     private int transferTypeId;
-    @NotBlank(message = "The transferStatusIs field is required.")
     private int transferStatusId;
 
     public Transfer(){
@@ -67,4 +60,5 @@ public class Transfer {
     public void setTransferStatusId(int transferStatusId) {
         this.transferStatusId = transferStatusId;
     }
+
 }

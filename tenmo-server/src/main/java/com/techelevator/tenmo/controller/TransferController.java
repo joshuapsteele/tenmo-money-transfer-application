@@ -40,7 +40,7 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "", method = RequestMethod.POST)
-    public boolean create(@Valid @RequestBody Transfer transfer) {
+    public boolean create(@RequestBody Transfer transfer) {
         return transferDao.create(transfer);
     }
 

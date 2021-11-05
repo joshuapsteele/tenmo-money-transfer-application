@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Scanner;
 
 public class ConsoleService {
@@ -91,4 +92,10 @@ public class ConsoleService {
 		} while(result == null);
 		return result;
 	}
+
+	public String displayAsCurrency(BigDecimal bigDecimal) {
+		NumberFormat formatter = NumberFormat.getCurrencyInstance();
+		return formatter.format(bigDecimal);
+	}
+
 }

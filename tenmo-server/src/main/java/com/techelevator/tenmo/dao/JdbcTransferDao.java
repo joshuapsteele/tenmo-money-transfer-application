@@ -31,11 +31,13 @@ public class JdbcTransferDao implements TransferDao{
 
     @Override
     public boolean create(Transfer transfer) {
-        String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (?, ?, ?, ?, ?) RETURNING transfer_id";
-        return jdbcTemplate.queryForObject(sql, Integer.class, transfer.getTransferTypeId(),
-                transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(),
-                transfer.getAmount()).longValue() == 1;
+        String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
+                "VALUES (?, ?, ?, ?, ?);";
+        return jdbcTemplate.update(sql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()) == 1;
+
+//                jdbcTemplate.queryForObject(sql, Integer.class, transfer.getTransferTypeId(),
+//                transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(),
+//                transfer.getAmount()).longValue() == 1;
     }
 
     @Override
