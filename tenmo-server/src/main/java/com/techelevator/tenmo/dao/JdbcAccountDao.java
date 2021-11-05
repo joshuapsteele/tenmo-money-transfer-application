@@ -40,6 +40,16 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
+    public Account getAccountByUserId(Long userId) {
+        String sql = "SELECT account_id, user_id, balance FROM accounts WHERE user_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
+        if (results.next()) {
+            return mapRowToAccount(results);
+        }
+        return null;
+    }
+
+    @Override
     public Long getUserIdByAccountId(Long id) {
         String sql = "SELECT user_id FROM accounts WHERE account_id = ?;";
         Long user_id = jdbcTemplate.queryForObject(sql, Long.class, id);

@@ -1,9 +1,6 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
 import com.techelevator.view.ConsoleService;
 import jdk.swing.interop.SwingInterOpUtils;
@@ -31,7 +28,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
 	
     private AuthenticatedUser currentUser;
-    private String currentUserToken = currentUser.getToken();
+    private String currentUserToken;
     private ConsoleService console;
     private AuthenticationService authenticationService;
 
@@ -89,8 +86,11 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewTransferHistory() {
 		Transfer[] transfers = transferService.listTransfers();
-		String prompt = "For further details on a transfer, enter its ID. " +
-				"Otherwise, press '0'"; //Prompt to pass into the console service's getUII method.
+		if (transfers == null || transfers.length == 0) {
+			System.out.println("Unable to retrieve transfer history.");
+			return;
+		}
+
 		System.out.println("-------------------------------------------");
 		System.out.println("\t\t\t\tTransfers");
 		System.out.println("\t\tID\t\tFrom/to\t\tAmount");
@@ -98,61 +98,74 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			System.out.println(transfer.getTransferId() + "\t\t" + transfer.getAccountFrom() + "\t/\t" + transfer.getAccountTo() + "\t\t" + transfer.getAmount());
 		}
 		System.out.println("-------------------------------------------");
-
+		System.out.println();
+		String prompt = "For further details on a transfer, enter its ID " +
+				"(otherwise, press '0' to exit): ";
 		Long request = Long.valueOf(console.getUserInputInteger(prompt));
-		Transfer requestedTransfer = transferService.getTransferById(request);
-		requestedTransfer.toString();
-
-		/*
-		while (requestedTransfer != 0) { //Above gets the requested transfer, below loops until it
-			for (int i = 0; i < transfers.length; i++){ //finds the correct transfer, then displays its details, and breaks from loop.
-				if (transfers[i].getTransferId() == requestedTransfer){
-					transfers[i].toString();
-					break;
-				}
-			}
-			requestedTransfer = Long.valueOf(console.getUserInputInteger(prompt));
+		if (request == 0) {
+			return;
 		}
-		 */
+		Transfer requestedTransfer = transferService.getTransferById(request);
+		if (requestedTransfer != null) {
+			System.out.println(requestedTransfer.toString());
+		} else {
+			System.out.println("Unable to retrieve transfer.");
+		}
 
-		// FIGURE OUT HOW/WHERE TO ASK USER FOR INPUT HERE
-		// ASK THE USER WHICH TRANSFER THEY WANT MORE INFORMATION ABOUT
-		// GIVE THEM THE OPTION TO CANCEL WITH 0
-		// "Please enter transfer ID to view details (0 to cancel): " (CONSOLESERVICE CAN ASK FOR INPUT AND RECORD INPUT)
-		// After you get number from user (might need to parse String into integer and then cast to a long, or parse to a long), use the TransferService to getTransferById(Long id);
-		// After you get that Transfer, use the Transfer.toString() method;
-		
 	}
 
 	private void sendBucks() {
+		User[] allUsers = userService.findAllUsers();
+		System.out.println("LIST OF ALL USERS");
+		System.out.println("-------------------------------------------");
+		System.out.println("\t\t\t\tUSERS");
+		System.out.println("ID\t\t\t\tNAME");
+		System.out.println("-------------------------------------------");
+		for (User user : allUsers) {
+			System.out.println(user.getId() + "\t\t\t\t" + user.getUsername());
+		}
+		System.out.println("---------");
+		System.out.println();
 
-		// UserService findAllUsers();
-    	// Take User[] and print it pretty.
+		// TODO FIGURE OUT THE BEST, MOST EFFICIENT WAY TO CHECK THAT THE ENTERED USERID IS VALID (EXISTS IN THE DATABASE).
+		String userIdPrompt = "Enter ID of user you are sending to (0 to cancel): ";
+		Long userIdTransferTo = Long.valueOf(console.getUserInputInteger(userIdPrompt));
 
-    	/* LIST OF ALL USERS
-		-------------------------------------------
-				Users
-		ID          Name
-		-------------------------------------------
-		313         Bernice
-		54          Larry
-		---------
+		Account accountTransferFrom = accountService.getAccountByUserId(currentUser.getUser().getId());
+		Long accountIdTransferFrom = accountTransferFrom.getId();
 
-		Enter ID of user you are sending to (0 to cancel):
-		Enter amount:
+		Account accountTransferTo = accountService.getAccountByUserId(userIdTransferTo);
+		Long accountIdTransferTo = accountService.getAccountByUserId(userIdTransferTo).getId();
 
-		DM: If what I have for getting a specific transfer (above method), then we can replicate it
-		here for the Users. Then use the getUI method from console and parse the String it
-		returns into a BigDecimal. Then we can check appropriate IDs and balances. */
+		String transferAmountPrompt = "Enter amount: ";
+		BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
 
-		// Check account from and to IDs to make sure they're valid.
-		// Check account FROM balance (YOUR balance, if you're sending money) and make sure that it's greater than or equal to the transfer amount.
-		// IF NOT, DON'T ACTUALLY CREATE A TRANSFER OBJECT!
+		if (transferAmount.compareTo(accountService.getUserAccountBalance(currentUser.getUser().getId())) == 1) {
+			System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
+			return;
+		}
 
-		// After validation, CREATE TRANSFER OBJECT
-		// Use TransferService to tell the SERVER to create a new transfer in the database
-		// Use AccountService to tell the Server to update the balances of 2 separate accounts
+		Transfer newTransfer = new Transfer();
+		newTransfer.setAccountFrom(accountIdTransferFrom);
+		newTransfer.setAccountTo(accountIdTransferTo);
+		newTransfer.setAmount(transferAmount);
+		newTransfer.setTransferTypeId(2); // SEND
+		newTransfer.setTransferStatusId(2); // APPROVED
 
+		// Decreases the balance of the FROM account by the transfer amount.
+		accountTransferFrom.setBalance(accountTransferFrom.getBalance().subtract(transferAmount));
+
+		// Decreases the balance of the TO account by the transfer amount.
+		accountTransferTo.setBalance(accountTransferTo.getBalance().add(transferAmount));
+
+		// Tells server to create new transfer and store in the database.
+		transferService.createTransfer(newTransfer);
+
+		// Tells server to update the FROM account with the new balance.
+		accountService.update(accountTransferFrom);
+
+		// Tells server to update the TO account with the new balance.
+		accountService.update(accountTransferTo);
 	}
 
 	private void requestBucks() {
@@ -220,13 +233,17 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println("Please log in");
 		currentUser = null;
 		while (currentUser == null) //will keep looping until user is logged in
+
+			// TODO FIND A WAY TO GIVE THE USER AN OPTION TO BREAK OUT OF THIS LOOP
 		{
 			UserCredentials credentials = collectUserCredentials();
 		    try {
 				currentUser = authenticationService.login(credentials);
-			} catch (AuthenticationServiceException e) {
+				currentUserToken = currentUser.getToken();
+			} catch (AuthenticationServiceException | NullPointerException e) {
 				System.out.println("LOGIN ERROR: "+e.getMessage());
 				System.out.println("Please attempt to login again.");
+				continue;
 			}
 		    if (currentUserToken != null) {
 		    	accountService.setAuthToken(currentUserToken);

@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @RequestMapping(path = "", method = RequestMethod.GET)
-    public List<User> findAllUsers() {
+    public User[] findAllUsers() {
         return userDao.findAll();
     }
 

@@ -37,6 +37,11 @@ public class AccountController {
         return accountDao.getAccountById(id);
     }
 
+    @RequestMapping(path = "user/{id}", method = RequestMethod.GET)
+    public Account getAccountByUserId(@PathVariable Long id) {
+        return accountDao.getAccountByUserId(id);
+    }
+
     // As an authenticated user of the system, I need to be able to see my Account Balance.
 
     @RequestMapping(path = "my-account-balance", method = RequestMethod.GET)
