@@ -21,10 +21,10 @@ public class UserService {
     }
 
     public User[] findAllUsers() {
-        User[] allUsers = null;
+        User[] allUsers = new User[0];
         try {
             ResponseEntity<User[]> response =
-                    restTemplate.exchange(API_BASE_URL + "users",
+                    restTemplate.exchange(API_BASE_URL + "users/",
                             HttpMethod.GET, makeAuthEntity(), User[].class);
             allUsers = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {

@@ -11,6 +11,8 @@ public interface AccountDao {
 
     Account getAccountById(Long id);
 
+    Account getAccountByUserId(Long userId);
+
     Long getUserIdByAccountId(Long id);
 
     BigDecimal viewBalance(Long userId);
