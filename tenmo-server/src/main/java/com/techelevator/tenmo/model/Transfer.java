@@ -1,47 +1,40 @@
 package com.techelevator.tenmo.model;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class Transfer {
-    private Long transfer_id;
-    @NotBlank(message = "The accountFrom field is required.")
-    private Long account_from;
-    @NotBlank(message = "The accountTo field is required.")
-    private Long account_to;
-    @Positive(message = "The amount to transfer must be greater than 0.")
+
+    private Long transferId;
+    private Long accountFrom;
+    private Long accountTo;
     private BigDecimal amount;
-    @NotBlank(message = "The transferTypeId field is required.")
-    private int transfer_type_id;
-    @NotBlank(message = "The transferStatusIs field is required.")
-    private int transfer_status_id;
+    private int transferTypeId;
+    private int transferStatusId;
 
     public Transfer(){
     }
 
     public Long getTransferId() {
-        return transfer_id;
+        return transferId;
     }
 
-    public void setTransferId(Long transfer_id) {
-        this.transfer_id = transfer_id;
+    public void setTransferId(Long transferId) {
+        this.transferId = transferId;
     }
 
     public Long getAccountFrom() {
-        return account_from;
+        return accountFrom;
     }
 
-    public void setAccountFrom(Long account_from) {
-        this.account_from = account_from;
+    public void setAccountFrom(Long accountFrom) {
+        this.accountFrom = accountFrom;
     }
 
     public Long getAccountTo() {
-        return account_to;
+        return accountTo;
     }
 
-    public void setAccountTo(Long account_to) {
-        this.account_to = account_to;
+    public void setAccountTo(Long accountTo) {
+        this.accountTo = accountTo;
     }
 
     public BigDecimal getAmount() {
@@ -53,18 +46,19 @@ public class Transfer {
     }
 
     public int getTransferTypeId() {
-        return transfer_type_id;
+        return transferTypeId;
     }
 
-    public void setTransferTypeId(int transfer_type_id) {
-        this.transfer_type_id = transfer_type_id;
+    public void setTransferTypeId(int transferTypeId) {
+        this.transferTypeId = transferTypeId;
     }
 
     public int getTransferStatusId() {
-        return transfer_status_id;
+        return transferStatusId;
     }
 
     public void setTransferStatusId(int transferStatusId) {
-        this.transfer_status_id = transferStatusId;
+        this.transferStatusId = transferStatusId;
     }
+
 }
