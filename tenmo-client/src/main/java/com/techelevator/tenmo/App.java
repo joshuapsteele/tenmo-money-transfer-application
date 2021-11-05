@@ -82,7 +82,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private void viewCurrentBalance() {
     	BigDecimal currentBalance = accountService.getUserAccountBalance(currentUser.getUser().getId());
 		String currentBalanceFormatted = console.displayAsCurrency(currentBalance);
-    	System.out.println("Your current balance is $" + currentBalanceFormatted);
+    	System.out.println("Your current balance is " + currentBalanceFormatted);
 	}
 
 	private void viewTransferHistory() {
@@ -115,7 +115,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	}
 
-	private void sendBucks() {
+	private void listAllUsers() {
 		User[] allUsers = userService.findAllUsers();
 		System.out.println("LIST OF ALL USERS");
 		System.out.println("-------------------------------------------");
@@ -127,16 +127,24 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		}
 		System.out.println("---------");
 		System.out.println();
+	}
+
+	private void sendBucks() {
+    	listAllUsers();
 
 		// TODO FIGURE OUT THE BEST, MOST EFFICIENT WAY TO CHECK THAT THE ENTERED USERID IS VALID (EXISTS IN THE DATABASE).
 		String userIdPrompt = "Enter ID of user you are sending to (0 to cancel): ";
 		Long userIdTransferTo = Long.valueOf(console.getUserInputInteger(userIdPrompt));
 
+		if (userIdTransferTo == 0) {
+			return;
+		}
+
 		Account accountTransferFrom = accountService.getAccountByUserId(currentUser.getUser().getId());
 		Long accountIdTransferFrom = accountTransferFrom.getId();
 
 		Account accountTransferTo = accountService.getAccountByUserId(userIdTransferTo);
-		Long accountIdTransferTo = accountService.getAccountByUserId(userIdTransferTo).getId();
+		Long accountIdTransferTo = accountTransferTo.getId();
 
 		String transferAmountPrompt = "Enter amount: ";
 		BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
@@ -170,6 +178,40 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void requestBucks() {
+    	listAllUsers();
+
+		String userIdPrompt = "Enter ID of user you are REQUESTING money FROM (0 to cancel): ";
+		Long userIdTransferFrom = Long.valueOf(console.getUserInputInteger(userIdPrompt));
+
+		if (userIdTransferFrom == 0) {
+			return;
+		}
+
+		Account accountTransferFrom = accountService.getAccountByUserId(userIdTransferFrom);
+		Long accountIdTransferFrom = accountTransferFrom.getId();
+
+		Account accountTransferTo = accountService.getAccountByUserId(currentUser.getUser().getId());
+		Long accountIdTransferTo = accountTransferTo.getId();
+
+		String transferAmountPrompt = "Enter amount: ";
+		BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
+
+		Transfer newTransfer = new Transfer();
+		newTransfer.setAccountFrom(accountIdTransferFrom);
+		newTransfer.setAccountTo(accountIdTransferTo);
+		newTransfer.setAmount(transferAmount);
+		newTransfer.setTransferTypeId(1); // REQUEST
+		newTransfer.setTransferStatusId(1); // PENDING
+
+		// Tells server to create new transfer and store in the database.
+		transferService.createTransfer(newTransfer);
+
+		// Tells server to update the FROM account with the new balance.
+		accountService.update(accountTransferFrom);
+
+		// Tells server to update the TO account with the new balance.
+		accountService.update(accountTransferTo);
+		
 		// Same structure, more or less, as above. Validate the numbers on the CLIENT SIDE before creating a Transfer Object.
 		// Transfer Object will have a DIFFERENT transfer_type_id and transfer_status than the sendBucks transfer.
 		// ASK user to approve or reject the transfer.
