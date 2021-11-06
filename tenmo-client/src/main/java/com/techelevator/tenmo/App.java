@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.math.BigDecimal;
 
+
+
 public class App {
 
     private static final String API_BASE_URL = "http://localhost:8080/";
@@ -58,12 +60,15 @@ public class App {
     }
 
     public void run() {
+        ConsoleUserInterface consoleUI = new ConsoleUserInterface(
+                new ConsoleService(System.in, System.out),
+                new AuthenticationService(API_BASE_URL));
         System.out.println("*********************");
         System.out.println("* Welcome to TEnmo! *");
         System.out.println("*********************");
 
         registerAndLogin();
-        mainMenu();
+        consoleUI.mainMenu();
     }
 
     // TODO: MOVE TO CONSOLEUSERINTERFACE
@@ -210,6 +215,13 @@ public class App {
         BigDecimal accountTransferToBalance = accountTransferTo.getBalance();
 
         String transferAmountPrompt = "Enter amount";
+        BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
+
+        if (transferAmount.compareTo(accountService.getUserAccountBalance(requestedSender.getUserId())) == 1) {
+            System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
+            return;
+        }
+
         BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
 
         Transfer newTransfer = new Transfer();
