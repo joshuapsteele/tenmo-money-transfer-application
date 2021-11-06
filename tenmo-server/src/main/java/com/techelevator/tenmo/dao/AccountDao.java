@@ -9,7 +9,9 @@ public interface AccountDao {
 
     List<Account> getAccounts();
 
-    Account getAccountById(Long id);
+    Account getAccountByAccountId(Long accountId);
+
+    String getUsernameByAccountId(Long account_id);
 
     Account getAccountByUserId(Long userId);
 

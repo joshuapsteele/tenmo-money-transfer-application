@@ -60,8 +60,12 @@ public class TransferController {
 
         if (transfer.getTransferStatusId() == 1){
             isApproved(transfer, accountFrom, accountTo, transferAmount);
+        if (transfer.getTransferStatusId() == 2 && accountFrom != null) {
+            accountDao.decreaseBalance(accountFrom.getAccountId(), transferAmount);
         }
-
+        if (transfer.getTransferStatusId() == 2 && accountTo != null) {
+            accountDao.increaseBalance(accountTo.getAccountId(), transferAmount);
+        }
         return transferDao.create(transfer);
     }
 
@@ -74,6 +78,7 @@ public class TransferController {
 
     @RequestMapping(path = "{id}", method = RequestMethod.PUT)
     public boolean update(@PathVariable Long id, @RequestBody Transfer transfer) {
+
 
         return transferDao.update(id, transfer);
     }
