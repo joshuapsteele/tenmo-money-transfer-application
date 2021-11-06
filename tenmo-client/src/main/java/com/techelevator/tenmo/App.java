@@ -103,6 +103,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println("\t\t\t\tTransfers");
 		System.out.println("\t\tID\t\tFrom/to\t\tAmount");
 		for (Transfer transfer : transfers) {
+			User currentUser = userService.findUserById(transfer.getAccountFrom());
 			System.out.println(transfer.getTransferId() + "\t\t" + transfer.getAccountFrom() + "\t/\t" + transfer.getAccountTo() + "\t\t" + transfer.getAmount());
 		}
 		System.out.println("-------------------------------------------");
@@ -188,11 +189,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 		String transferAmountPrompt = "Enter amount: ";
 		BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
-
-		if (transferAmount.compareTo(accountService.getUserAccountBalance(requestedSender.getUserId())) == 1) {
-			System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
-			return;
-		}
 
 		Transfer newTransfer = new Transfer();
 		newTransfer.setAccountFrom(accountIdTransferFrom);
