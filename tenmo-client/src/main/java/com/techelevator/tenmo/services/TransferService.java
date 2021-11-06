@@ -33,11 +33,11 @@ public class TransferService {
         return false;
     }
 
-    public Transfer getTransferById(Long transferID) {
+    public Transfer getCurrentUserTransferById(Long transferId) {
         Transfer transfer = null;
         try {
             ResponseEntity<Transfer> response =
-                    restTemplate.exchange(API_BASE_URL + "transfers/" + transferID,
+                    restTemplate.exchange(API_BASE_URL + "transfers/my-transfers/" + transferId,
                             HttpMethod.GET,
                             makeAuthEntity(),
                             Transfer.class);
@@ -77,7 +77,7 @@ public class TransferService {
         HttpEntity<Transfer> entity = makeTransferEntity(transfer);
         boolean success = false;
         try {
-            restTemplate.exchange(API_BASE_URL + "transfers/" + transfer.getTransferId(), HttpMethod.PUT, entity, Transfer.class);
+            restTemplate.put(API_BASE_URL + "transfers/" + transfer.getTransferId(), entity);
             success = true;
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println("Failed to update transfer.");

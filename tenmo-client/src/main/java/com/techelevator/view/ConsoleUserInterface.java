@@ -1,20 +1,11 @@
-package com.techelevator.tenmo;
+package com.techelevator.view;
 
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
-import com.techelevator.view.ConsoleService;
-import com.techelevator.view.ConsoleUserInterface;
-import jdk.swing.interop.SwingInterOpUtils;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.math.BigDecimal;
 
-
-
-public class App {
+public class ConsoleUserInterface {
 
     private static final String API_BASE_URL = "http://localhost:8080/";
 
@@ -47,32 +38,13 @@ public class App {
     private TransferService transferService = new TransferService();
     private UserService userService = new UserService();
 
-    public static void main(String[] args) {
-        App app = new App(
-                new ConsoleService(System.in, System.out),
-                new AuthenticationService(API_BASE_URL));
-        app.run();
-    }
-
-    public App(ConsoleService consoleService, AuthenticationService authenticationService) {
+    public ConsoleUserInterface(ConsoleService consoleService, AuthenticationService authenticationService) {
         this.consoleService = consoleService;
         this.authenticationService = authenticationService;
     }
 
-    public void run() {
-        ConsoleUserInterface consoleUI = new ConsoleUserInterface(
-                new ConsoleService(System.in, System.out),
-                new AuthenticationService(API_BASE_URL));
-        System.out.println("*********************");
-        System.out.println("* Welcome to TEnmo! *");
-        System.out.println("*********************");
-
-        registerAndLogin();
-        consoleUI.mainMenu();
-    }
-
     // TODO: MOVE TO CONSOLEUSERINTERFACE
-    private void mainMenu() {
+    public void mainMenu() {
         while (true) {
             String choice = (String) consoleService.getChoiceFromOptions(MAIN_MENU_OPTIONS);
             if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
