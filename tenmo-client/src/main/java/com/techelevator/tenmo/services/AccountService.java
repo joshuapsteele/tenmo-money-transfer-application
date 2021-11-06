@@ -19,7 +19,7 @@ public class AccountService {
         this.authToken = authToken;
     }
 
-    public Account getAccount(Long accountId){
+    public Account getAccountByAccountId(Long accountId){
         Account account = null;
         try {
             ResponseEntity<Account> response =
@@ -43,6 +43,19 @@ public class AccountService {
             System.out.println("Failed to retrieve account");
         }
         return account;
+    }
+
+    public String getUsernameByAccountId(Long accountId) {
+        String username = null;
+        try {
+            ResponseEntity<String> response =
+                    restTemplate.exchange(API_BASE_URL + "accounts/" + accountId + "/username",
+                            HttpMethod.GET, makeAuthEntity(), String.class);
+            username = response.getBody();
+        } catch (RestClientResponseException| ResourceAccessException e){
+            System.out.println("Failed to retrieve username");
+        }
+        return username;
     }
 
     // This way of retrieving the logged-in user's account balance makes use of the viewBalance() method
