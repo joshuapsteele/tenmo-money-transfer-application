@@ -4,13 +4,15 @@ import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
-public class UserService {
+@Component
+public class UserService implements UserServiceInterface {
 
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
@@ -19,10 +21,12 @@ public class UserService {
 
     private String authToken = null;
 
+    @Override
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
 
+    @Override
     public User[] findAllUsers() {
         User[] allUsers = new User[0];
         try {
@@ -36,6 +40,7 @@ public class UserService {
         return allUsers;
     }
 
+    @Override
     public User findUserById(Long id) {
         User user = null;
         try {
@@ -49,6 +54,7 @@ public class UserService {
         return user;
     }
 
+    @Override
     public String getUsernameByAccountId(Long accountId) {
         Account account = accountService.getAccountByAccountId(accountId);
         Long userId = account.getUserId();

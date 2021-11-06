@@ -8,13 +8,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.UserCredentials;
 
-public class AuthenticationService {
+@Component
+public class AuthenticationService implements AuthenticationServiceInterface {
 
     private String baseUrl;
     private RestTemplate restTemplate = new RestTemplate();
@@ -23,11 +25,13 @@ public class AuthenticationService {
         this.baseUrl = url;
     }
 
+    @Override
     public AuthenticatedUser login(UserCredentials credentials) throws AuthenticationServiceException {
         HttpEntity<UserCredentials> entity = createRequestEntity(credentials);
         return sendLoginRequest(entity);
     }
 
+    @Override
     public void register(UserCredentials credentials) throws AuthenticationServiceException {
     	HttpEntity<UserCredentials> entity = createRequestEntity(credentials);
         sendRegistrationRequest(entity);
