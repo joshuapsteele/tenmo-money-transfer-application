@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
@@ -8,17 +9,19 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
-public class AccountService {
+public class AccountService implements AccountServiceInterface {
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
 
     private String authToken = null;
 
     // We need to determine where this method should be called from. Perhaps the App class?
+    @Override
     public void setAuthToken(String authToken){
         this.authToken = authToken;
     }
 
+    @Override
     public Account getAccountByAccountId(Long accountId){
         Account account = null;
         try {
@@ -32,6 +35,7 @@ public class AccountService {
         return account;
     }
 
+    @Override
     public Account getAccountByUserId(Long userId) {
         Account account = null;
         try {
@@ -45,6 +49,7 @@ public class AccountService {
         return account;
     }
 
+    @Override
     public String getUsernameByAccountId(Long accountId) {
         String username = null;
         try {
@@ -58,6 +63,7 @@ public class AccountService {
         return username;
     }
 
+    @Override
     public BigDecimal getAccountBalanceByAccountId(Long accountId) {
         BigDecimal accountBalance = null;
         try {
@@ -71,6 +77,7 @@ public class AccountService {
         return accountBalance;
     }
 
+    @Override
     public BigDecimal getCurrentUserAccountBalance(Long accountId) {
         BigDecimal userAccountBalance = null;
         try {
@@ -101,6 +108,7 @@ public class AccountService {
 //        return null;
 //    }
 
+    @Override
     public boolean update(Account updatedAccount) {
         HttpEntity<Account> entity = makeAccountEntity(updatedAccount);
 

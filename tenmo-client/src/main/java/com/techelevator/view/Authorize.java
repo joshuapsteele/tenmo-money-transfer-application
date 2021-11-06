@@ -1,10 +1,11 @@
 package com.techelevator.view;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.services.AccountService;
-import com.techelevator.tenmo.services.AuthenticationService;
-import com.techelevator.tenmo.services.TransferService;
-import com.techelevator.tenmo.services.UserService;
+import com.techelevator.tenmo.services.*;
+import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.AuthenticationServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
 
 public class Authorize {
     private static final String MENU_OPTION_EXIT = "Exit";
@@ -15,11 +16,11 @@ public class Authorize {
     private AuthenticatedUser currentUser;
     private String currentUserToken;
     private ConsoleService consoleService;
-    private AuthenticationService authenticationService;
+    private AuthenticationServiceInterface authenticationServiceInterface;
 
-    private AccountService accountService = new AccountService();
-    private TransferService transferService = new TransferService();
-    private UserService userService = new UserService();
+    private AccountServiceInterface accountServiceInterface = new AccountService();
+    private TransferServiceInterface transferServiceInterface = new TransferService();
+    private UserServiceInterface userServiceInterface = new UserService();
 
 
 }

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Scanner;
 
-public class ConsoleService {
+public class ConsoleService implements ConsoleServiceInterface {
 
 	private PrintWriter out;
 	private Scanner in;
@@ -20,7 +20,8 @@ public class ConsoleService {
 		this.in = new Scanner(input);
 	}
 
-	public Object getChoiceFromOptions(Object[] options) {
+	@Override
+    public Object getChoiceFromOptions(Object[] options) {
 		Object choice = null;
 		while (choice == null) {
 			displayMenuOptions(options);
@@ -57,13 +58,15 @@ public class ConsoleService {
 		out.flush();
 	}
 
-	public String getUserInput(String prompt) {
+	@Override
+    public String getUserInput(String prompt) {
 		out.print(prompt+": ");
 		out.flush();
 		return in.nextLine();
 	}
 
-	public Integer getUserInputInteger(String prompt) {
+	@Override
+    public Integer getUserInputInteger(String prompt) {
 		Integer result = null;
 		do {
 			out.print(prompt+": ");
@@ -78,7 +81,8 @@ public class ConsoleService {
 		return result;
 	}
 
-	public BigDecimal getUserInputBigDecimal(String prompt) {
+	@Override
+    public BigDecimal getUserInputBigDecimal(String prompt) {
 		BigDecimal result = null;
 		do {
 			out.print(prompt+": ");
@@ -93,7 +97,8 @@ public class ConsoleService {
 		return result;
 	}
 
-	public String displayAsCurrency(BigDecimal bigDecimal) {
+	@Override
+    public String displayAsCurrency(BigDecimal bigDecimal) {
 		NumberFormat formatter = NumberFormat.getCurrencyInstance();
 		return formatter.format(bigDecimal);
 	}

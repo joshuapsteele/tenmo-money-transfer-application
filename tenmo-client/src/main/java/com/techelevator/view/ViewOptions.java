@@ -2,10 +2,11 @@ package com.techelevator.view;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.services.AccountService;
-import com.techelevator.tenmo.services.AuthenticationService;
-import com.techelevator.tenmo.services.TransferService;
-import com.techelevator.tenmo.services.UserService;
+import com.techelevator.tenmo.services.*;
+import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.AuthenticationServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
 
 import java.math.BigDecimal;
 
@@ -18,19 +19,23 @@ public class ViewOptions {
     private AuthenticatedUser currentUser;
     private String currentUserToken;
     private ConsoleService console;
-    private AuthenticationService authService;
+    private AuthenticationServiceInterface authService;
 
-    private AccountService accountService = new AccountService();
-    private TransferService transferService = new TransferService();
-    private UserService userService = new UserService();
+    private AccountServiceInterface accountServiceInterface = new AccountService();
+    private TransferServiceInterface transferServiceInterface = new TransferService();
+    private UserServiceInterface userServiceInterface = new UserService();
 
-    public ViewOptions(ConsoleService console, AuthenticationService authService){
+    public ViewOptions(){}
+
+    public ViewOptions(ConsoleService console,AuthenticationServiceInterface authService, AuthenticatedUser currentUser,
+                       String currentUserToken,TransferServiceInterface transferServiceInterface,
+                       UserServiceInterface userServiceInterface, AccountServiceInterface accountServiceInterface){
         this.console = console;
         this.authService = authService;
     }
 
     public void viewCurrentBalance() {
-        BigDecimal currentBalance = accountService.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
+        BigDecimal currentBalance = accountServiceInterface.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
         String currentBalanceFormatted = console.displayAsCurrency(currentBalance);
         System.out.println("Your current balance is " + currentBalanceFormatted);
     }
@@ -38,7 +43,7 @@ public class ViewOptions {
     // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     public void viewTransferHistory() {
-        Transfer[] transfers = transferService.listAllTransfersCurrentUser();
+        Transfer[] transfers = transferServiceInterface.listAllTransfersCurrentUser();
         if (transfers == null || transfers.length == 0) {
             System.out.println("Unable to retrieve transfer history.");
             return;
@@ -49,27 +54,27 @@ public class ViewOptions {
         System.out.println("ID\t\tFrom/to\t\tAmount");
         for (Transfer transfer : transfers) {
             Long accountFromId = transfer.getAccountFrom();
-            String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
+            String accountFromUsername = accountServiceInterface.getUsernameByAccountId(accountFromId);
             Long accountToId = transfer.getAccountTo();
-            String accountToUsername = accountService.getUsernameByAccountId(accountToId);
+            String accountToUsername = accountServiceInterface.getUsernameByAccountId(accountToId);
 
             System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t\t/\t\t" + accountToUsername + "\t\t" + transfer.getAmount());
         }
         System.out.println("-------------------------------------------");
         System.out.println();
-        viewTransferDetails();
     }
 
     // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     public void viewTransferDetails() {
+        viewTransferHistory();
         String prompt = "For further details on a transfer, enter its ID " +
                 "(otherwise, press '0' to exit)";
         Long request = Long.valueOf(console.getUserInputInteger(prompt));
         if (request == 0) {
             return;
         }
-        Transfer requestedTransfer = transferService.getCurrentUserTransferById(request);
+        Transfer requestedTransfer = transferServiceInterface.getCurrentUserTransferById(request);
         if (requestedTransfer != null) {
             System.out.println(requestedTransfer.toString());
         } else {
@@ -79,7 +84,7 @@ public class ViewOptions {
     }
 
     public void viewPendingRequests() {
-        Transfer[] allTransfersForCurrentUser = transferService.listAllTransfersCurrentUser();
+        Transfer[] allTransfersForCurrentUser = transferServiceInterface.listAllTransfersCurrentUser();
 
         System.out.println("-------------------------------------------");
         System.out.println("\t\t\tPending Request Transfers");
@@ -87,11 +92,11 @@ public class ViewOptions {
         for (Transfer transfer : allTransfersForCurrentUser) {
             Long accountFromId = transfer.getAccountFrom();
             Long currentUserId = currentUser.getUser().getUserId();
-            Long currentUserAccountId = accountService.getAccountByUserId(currentUserId).getAccountId();
+            Long currentUserAccountId = accountServiceInterface.getAccountByUserId(currentUserId).getAccountId();
             if (transfer.getTransferStatusId() == 1 && accountFromId.equals(currentUserAccountId)) {
-                String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
+                String accountFromUsername = accountServiceInterface.getUsernameByAccountId(accountFromId);
                 Long accountToId = transfer.getAccountTo();
-                String accountToUsername = accountService.getUsernameByAccountId(accountToId);
+                String accountToUsername = accountServiceInterface.getUsernameByAccountId(accountToId);
                 System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t/\t" + accountToUsername + "\t\t" + transfer.getAmount());
             }
         }
@@ -103,20 +108,20 @@ public class ViewOptions {
             return;
         }
 
-        Transfer requestedTransfer = transferService.getCurrentUserTransferById(request);
+        Transfer requestedTransfer = transferServiceInterface.getCurrentUserTransferById(request);
 
         while (true) {
             String choice = (String) console.getChoiceFromOptions(PENDING_TRANSFER_MENU_OPTIONS);
             if (PENDING_TRANSFER_MENU_OPTION_APPROVE.equals(choice)) {
                 requestedTransfer.setTransferStatusId(2);
-                transferService.updateTransfer(requestedTransfer);
+                transferServiceInterface.updateTransfer(requestedTransfer);
                 System.out.println("Transfer approved!");
                 viewCurrentBalance();
                 return;
 
             } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
                 requestedTransfer.setTransferStatusId(3);
-                transferService.updateTransfer(requestedTransfer);
+                transferServiceInterface.updateTransfer(requestedTransfer);
                 System.out.println("Transfer rejected!");
                 viewCurrentBalance();
                 return;

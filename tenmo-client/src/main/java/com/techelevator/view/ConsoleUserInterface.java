@@ -2,8 +2,11 @@ package com.techelevator.view;
 
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
+import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.AuthenticationServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
 
-import javax.swing.text.View;
 import java.math.BigDecimal;
 
 public class ConsoleUserInterface {
@@ -31,20 +34,22 @@ public class ConsoleUserInterface {
     private AuthenticatedUser currentUser;
     private String currentUserToken;
     private ConsoleService consoleService;
-    private AuthenticationService authenticationService;
+    private AuthenticationServiceInterface authenticationServiceInterface;
 
-    private AccountService accountService = new AccountService();
-    private TransferService transferService = new TransferService();
-    private UserService userService = new UserService();
+    private AccountServiceInterface accountServiceInterface = new AccountService();
+    private TransferServiceInterface transferServiceInterface = new TransferService();
+    private UserServiceInterface userServiceInterface = new UserService();
 
-    public ConsoleUserInterface(ConsoleService consoleService, AuthenticationService authenticationService) {
+    public ConsoleUserInterface(ConsoleService consoleService, AuthenticationServiceInterface authenticationServiceInterface) {
         this.consoleService = consoleService;
-        this.authenticationService = authenticationService;
+        this.authenticationServiceInterface = authenticationServiceInterface;
     }
 
     // TODO: MOVE TO CONSOLEUSERINTERFACE
     public void mainMenu() {
-        ViewOptions viewOptions = new ViewOptions(consoleService, authenticationService);
+        ViewOptions viewOptions = new ViewOptions(consoleService,
+                authenticationServiceInterface, currentUser, currentUserToken,
+                transferServiceInterface, userServiceInterface, accountServiceInterface);
 
         while (true) {
             String choice = (String) consoleService.getChoiceFromOptions(MAIN_MENU_OPTIONS);
@@ -70,7 +75,7 @@ public class ConsoleUserInterface {
     // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     private void viewCurrentBalance() {
-        BigDecimal currentBalance = accountService.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
+        BigDecimal currentBalance = accountServiceInterface.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
         String currentBalanceFormatted = consoleService.displayAsCurrency(currentBalance);
         System.out.println("Your current balance is " + currentBalanceFormatted);
     }
@@ -78,7 +83,7 @@ public class ConsoleUserInterface {
     // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     private void viewTransferHistory() {
-        Transfer[] transfers = transferService.listAllTransfersCurrentUser();
+        Transfer[] transfers = transferServiceInterface.listAllTransfersCurrentUser();
         if (transfers == null || transfers.length == 0) {
             System.out.println("Unable to retrieve transfer history.");
             return;
@@ -89,9 +94,9 @@ public class ConsoleUserInterface {
         System.out.println("ID\t\tFrom/to\t\tAmount");
         for (Transfer transfer : transfers) {
             Long accountFromId = transfer.getAccountFrom();
-            String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
+            String accountFromUsername = accountServiceInterface.getUsernameByAccountId(accountFromId);
             Long accountToId = transfer.getAccountTo();
-            String accountToUsername = accountService.getUsernameByAccountId(accountToId);
+            String accountToUsername = accountServiceInterface.getUsernameByAccountId(accountToId);
 
             System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t\t/\t\t" + accountToUsername + "\t\t" + transfer.getAmount());
         }
@@ -109,7 +114,7 @@ public class ConsoleUserInterface {
         if (request == 0) {
             return;
         }
-        Transfer requestedTransfer = transferService.getCurrentUserTransferById(request);
+        Transfer requestedTransfer = transferServiceInterface.getCurrentUserTransferById(request);
         if (requestedTransfer != null) {
             System.out.println(requestedTransfer.toString());
         } else {
@@ -121,7 +126,7 @@ public class ConsoleUserInterface {
     // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     private void listAllUsers() {
-        User[] allUsers = userService.findAllUsers();
+        User[] allUsers = userServiceInterface.findAllUsers();
         System.out.println("LIST OF ALL USERS");
         System.out.println("-------------------------------------------");
         System.out.println("\t\t\t\tUSERS");
@@ -144,10 +149,10 @@ public class ConsoleUserInterface {
             return;
         }
 
-        Account accountTransferFrom = accountService.getAccountByUserId(currentUser.getUser().getUserId());
+        Account accountTransferFrom = accountServiceInterface.getAccountByUserId(currentUser.getUser().getUserId());
         Long accountIdTransferFrom = accountTransferFrom.getAccountId();
 
-        Account accountTransferTo = accountService.getAccountByUserId(userIdTransferTo);
+        Account accountTransferTo = accountServiceInterface.getAccountByUserId(userIdTransferTo);
         Long accountIdTransferTo = accountTransferTo.getAccountId();
 
         String transferAmountPrompt = "Enter amount";
@@ -160,7 +165,7 @@ public class ConsoleUserInterface {
         newTransfer.setTransferTypeId(2); // SEND
         newTransfer.setTransferStatusId(2); // APPROVED
 
-        boolean wasTransferSuccessful = transferService.createTransfer(newTransfer);
+        boolean wasTransferSuccessful = transferServiceInterface.createTransfer(newTransfer);
 
         if (wasTransferSuccessful) {
             System.out.println("Transfer was successful");
@@ -179,11 +184,11 @@ public class ConsoleUserInterface {
             return;
         }
 
-        Account accountTransferFrom = accountService.getAccountByUserId(userIdTransferFrom);
+        Account accountTransferFrom = accountServiceInterface.getAccountByUserId(userIdTransferFrom);
         Long accountIdTransferFrom = accountTransferFrom.getAccountId();
         BigDecimal accountTransferFromBalance = accountTransferFrom.getBalance();
 
-        Account accountTransferTo = accountService.getAccountByUserId(currentUser.getUser().getUserId());
+        Account accountTransferTo = accountServiceInterface.getAccountByUserId(currentUser.getUser().getUserId());
         Long accountIdTransferTo = accountTransferTo.getAccountId();
         BigDecimal accountTransferToBalance = accountTransferTo.getBalance();
 
@@ -198,7 +203,7 @@ public class ConsoleUserInterface {
         newTransfer.setTransferTypeId(1); // REQUEST
         newTransfer.setTransferStatusId(1); // PENDING
 
-        boolean transferWasSuccessful = transferService.createTransfer(newTransfer);
+        boolean transferWasSuccessful = transferServiceInterface.createTransfer(newTransfer);
 
         if (transferWasSuccessful) {
             System.out.println("Request was successful. " +
@@ -207,7 +212,7 @@ public class ConsoleUserInterface {
     }
 
     private void viewPendingRequests() {
-        Transfer[] allTransfersForCurrentUser = transferService.listAllTransfersCurrentUser();
+        Transfer[] allTransfersForCurrentUser = transferServiceInterface.listAllTransfersCurrentUser();
 
         System.out.println("-------------------------------------------");
         System.out.println("\t\t\tPending Request Transfers");
@@ -215,11 +220,11 @@ public class ConsoleUserInterface {
         for (Transfer transfer : allTransfersForCurrentUser) {
             Long accountFromId = transfer.getAccountFrom();
             Long currentUserId = currentUser.getUser().getUserId();
-            Long currentUserAccountId = accountService.getAccountByUserId(currentUserId).getAccountId();
+            Long currentUserAccountId = accountServiceInterface.getAccountByUserId(currentUserId).getAccountId();
             if (transfer.getTransferStatusId() == 1 && accountFromId.equals(currentUserAccountId)) {
-                String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
+                String accountFromUsername = accountServiceInterface.getUsernameByAccountId(accountFromId);
                 Long accountToId = transfer.getAccountTo();
-                String accountToUsername = accountService.getUsernameByAccountId(accountToId);
+                String accountToUsername = accountServiceInterface.getUsernameByAccountId(accountToId);
                 System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t/\t" + accountToUsername + "\t\t" + transfer.getAmount());
             }
         }
@@ -231,20 +236,20 @@ public class ConsoleUserInterface {
             return;
         }
 
-        Transfer requestedTransfer = transferService.getCurrentUserTransferById(request);
+        Transfer requestedTransfer = transferServiceInterface.getCurrentUserTransferById(request);
 
         while (true) {
             String choice = (String) consoleService.getChoiceFromOptions(PENDING_TRANSFER_MENU_OPTIONS);
             if (PENDING_TRANSFER_MENU_OPTION_APPROVE.equals(choice)) {
                 requestedTransfer.setTransferStatusId(2);
-                transferService.updateTransfer(requestedTransfer);
+                transferServiceInterface.updateTransfer(requestedTransfer);
                 System.out.println("Transfer approved!");
                 viewCurrentBalance();
                 return;
 
             } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
                 requestedTransfer.setTransferStatusId(3);
-                transferService.updateTransfer(requestedTransfer);
+                transferServiceInterface.updateTransfer(requestedTransfer);
                 System.out.println("Transfer rejected!");
                 viewCurrentBalance();
                 return;
@@ -284,7 +289,7 @@ public class ConsoleUserInterface {
         {
             UserCredentials credentials = collectUserCredentials();
             try {
-                authenticationService.register(credentials);
+                authenticationServiceInterface.register(credentials);
                 isRegistered = true;
                 System.out.println("Registration successful. You can now login.");
             } catch (AuthenticationServiceException e) {
@@ -303,7 +308,7 @@ public class ConsoleUserInterface {
         {
             UserCredentials credentials = collectUserCredentials();
             try {
-                currentUser = authenticationService.login(credentials);
+                currentUser = authenticationServiceInterface.login(credentials);
                 currentUserToken = currentUser.getToken();
             } catch (AuthenticationServiceException | NullPointerException e) {
                 System.out.println("LOGIN ERROR: " + e.getMessage());
@@ -311,9 +316,9 @@ public class ConsoleUserInterface {
                 continue;
             }
             if (currentUserToken != null) {
-                accountService.setAuthToken(currentUserToken);
-                transferService.setAuthToken(currentUserToken);
-                userService.setAuthToken(currentUserToken);
+                accountServiceInterface.setAuthToken(currentUserToken);
+                transferServiceInterface.setAuthToken(currentUserToken);
+                userServiceInterface.setAuthToken(currentUserToken);
             } else {
                 System.out.println("USER AUTHENTICATION ERROR: Please attempt to login again.");
             }
