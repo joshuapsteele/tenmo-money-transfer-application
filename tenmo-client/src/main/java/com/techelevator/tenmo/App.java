@@ -12,8 +12,6 @@ import com.techelevator.view.ConsoleService;
 
 import java.math.BigDecimal;
 
-
-
 public class App {
 
     private static final String API_BASE_URL = "http://localhost:8080/";
@@ -60,10 +58,20 @@ public class App {
 //        ConsoleUserInterface consoleUI = new ConsoleUserInterface(
 //                new ConsoleService(System.in, System.out),
 //                new AuthenticationService(API_BASE_URL));
-        System.out.println("*********************");
-        System.out.println("* Welcome to TEnmo! *");
-        System.out.println("*********************");
 
+        System.out.println("***************************************************************");
+        System.out.println();
+        System.out.println("WELCOME TO");
+        System.out.println("\n" +
+                "$$$$$$$$\\ $$$$$$$$\\                                   \n" +
+                "\\__$$  __|$$  _____|                                  \n" +
+                "   $$ |   $$ |      $$$$$$$\\  $$$$$$\\$$$$\\   $$$$$$\\  \n" +
+                "   $$ |   $$$$$\\    $$  __$$\\ $$  _$$  _$$\\ $$  __$$\\ \n" +
+                "   $$ |   $$  __|   $$ |  $$ |$$ / $$ / $$ |$$ /  $$ |\n" +
+                "   $$ |   $$ |      $$ |  $$ |$$ | $$ | $$ |$$ |  $$ |\n" +
+                "   $$ |   $$$$$$$$\\ $$ |  $$ |$$ | $$ | $$ |\\$$$$$$  |\n" +
+                "   \\__|   \\________|\\__|  \\__|\\__| \\__| \\__| \\______/ \n");
+        System.out.println("****************************************************************");
         registerAndLogin();
         mainMenu();
     }
