@@ -3,6 +3,7 @@ package com.techelevator.view;
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
 
+import javax.swing.text.View;
 import java.math.BigDecimal;
 
 public class ConsoleUserInterface {
@@ -27,13 +28,11 @@ public class ConsoleUserInterface {
     private static final String PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT = "Don't approve or reject (Exit)";
     private static final String[] PENDING_TRANSFER_MENU_OPTIONS = {PENDING_TRANSFER_MENU_OPTION_APPROVE, PENDING_TRANSFER_MENU_OPTION_REJECT, PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT};
 
-
     private AuthenticatedUser currentUser;
     private String currentUserToken;
     private ConsoleService consoleService;
     private AuthenticationService authenticationService;
 
-    private ConsoleUserInterface consoleUserInterface = new ConsoleUserInterface();
     private AccountService accountService = new AccountService();
     private TransferService transferService = new TransferService();
     private UserService userService = new UserService();
@@ -45,14 +44,16 @@ public class ConsoleUserInterface {
 
     // TODO: MOVE TO CONSOLEUSERINTERFACE
     public void mainMenu() {
+        ViewOptions viewOptions = new ViewOptions(consoleService, authenticationService);
+
         while (true) {
             String choice = (String) consoleService.getChoiceFromOptions(MAIN_MENU_OPTIONS);
             if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
-                viewCurrentBalance();
+                viewOptions.viewCurrentBalance();
             } else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
-                viewTransferHistory();
+                viewOptions.viewTransferHistory();
             } else if (MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
-                viewPendingRequests();
+                viewOptions.viewPendingRequests();
             } else if (MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
                 sendBucks();
             } else if (MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
@@ -189,12 +190,6 @@ public class ConsoleUserInterface {
         String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
 
-        if (transferAmount.compareTo(accountService.getUserAccountBalance(requestedSender.getUserId())) == 1) {
-            System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
-            return;
-        }
-
-        BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
 
         Transfer newTransfer = new Transfer();
         newTransfer.setAccountFrom(accountIdTransferFrom);

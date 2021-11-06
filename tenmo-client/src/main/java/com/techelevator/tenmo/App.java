@@ -36,13 +36,11 @@ public class App {
     private static final String PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT = "Don't approve or reject (Exit)";
     private static final String[] PENDING_TRANSFER_MENU_OPTIONS = {PENDING_TRANSFER_MENU_OPTION_APPROVE, PENDING_TRANSFER_MENU_OPTION_REJECT, PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT};
 
-
     private AuthenticatedUser currentUser;
     private String currentUserToken;
     private ConsoleService consoleService;
     private AuthenticationService authenticationService;
 
-    private ConsoleUserInterface consoleUserInterface = new ConsoleUserInterface();
     private AccountService accountService = new AccountService();
     private TransferService transferService = new TransferService();
     private UserService userService = new UserService();
@@ -68,7 +66,8 @@ public class App {
         System.out.println("*********************");
 
         registerAndLogin();
-        consoleUI.mainMenu();
+        //consoleUI.mainMenu();
+        mainMenu();
     }
 
     // TODO: MOVE TO CONSOLEUSERINTERFACE
@@ -78,7 +77,7 @@ public class App {
             if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
                 viewCurrentBalance();
             } else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
-                viewTransferHistory();
+                viewTransferDetails();
             } else if (MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
                 viewPendingRequests();
             } else if (MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
@@ -112,8 +111,8 @@ public class App {
         }
 
         System.out.println("-------------------------------------------");
-        System.out.println("\t\t\t\tTransfers");
-        System.out.println("ID\t\tFrom/to\t\tAmount");
+        System.out.println("\t\t\t\t\tTransfers");
+        System.out.println("ID\t\t\t\t\tFrom/To\t\t\t\t\tAmount");
         for (Transfer transfer : transfers) {
             Long accountFromId = transfer.getAccountFrom();
             String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
@@ -124,6 +123,7 @@ public class App {
         }
         System.out.println("-------------------------------------------");
         System.out.println();
+        viewTransferDetails();
     }
 
     // TODO: MOVE TO CONSOLEUSERINTERFACE
@@ -216,13 +216,15 @@ public class App {
 
         String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
-
+/*
         if (transferAmount.compareTo(accountService.getUserAccountBalance(requestedSender.getUserId())) == 1) {
             System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
             return;
         }
 
         BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
+
+ */
 
         Transfer newTransfer = new Transfer();
         newTransfer.setAccountFrom(accountIdTransferFrom);
