@@ -13,7 +13,9 @@ public interface TransferDao {
 
     List<Transfer> viewAllTransfersByUserId(Long userId);
 
-    Transfer findTransferByTransferId(Long userId, Long transferId);
+    Transfer getTransferByTransferId(Long transferId);
+
+    Transfer findCurrentUserTransferByTransferId(Long userId, Long transferId);
 
     boolean update(Long id, Transfer transferToUpdate);
 

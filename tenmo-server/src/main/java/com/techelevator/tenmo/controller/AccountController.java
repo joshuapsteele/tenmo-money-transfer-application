@@ -47,13 +47,17 @@ public class AccountController {
         return accountDao.getUsernameByAccountId(id);
     }
 
-    // As an authenticated user of the system, I need to be able to see my Account Balance.
+    @RequestMapping(path = "{id}/balance", method = RequestMethod.GET)
+    public BigDecimal getAccountBalanceByAccountId(@PathVariable Long id) {
+        return accountDao.viewBalanceByAccountId(id);
+    }
 
+    // As an authenticated user of the system, I need to be able to see my Account Balance.
     @RequestMapping(path = "my-account-balance", method = RequestMethod.GET)
     public BigDecimal viewBalance(Principal whoIsLoggedIn) {
         String username = whoIsLoggedIn.getName();
         Long userId = userDao.findIdByUsername(username);
-        BigDecimal balance = accountDao.viewBalance(userId);
+        BigDecimal balance = accountDao.viewBalanceByUserId(userId);
         return balance;
     }
 

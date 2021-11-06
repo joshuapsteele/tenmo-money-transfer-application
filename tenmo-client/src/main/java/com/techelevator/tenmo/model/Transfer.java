@@ -15,7 +15,6 @@ public class Transfer {
     private int transferStatusId;
 
     public Transfer() {
-
     }
 
     public Long getTransferId() {

@@ -58,9 +58,20 @@ public class AccountService {
         return username;
     }
 
-    // This way of retrieving the logged-in user's account balance makes use of the viewBalance() method
-    // in the AccountController (URL = "/api/accounts/my-account-balance").
-    public BigDecimal getUserAccountBalance(Long accountId) {
+    public BigDecimal getAccountBalanceByAccountId(Long accountId) {
+        BigDecimal accountBalance = null;
+        try {
+            ResponseEntity<BigDecimal> response =
+                    restTemplate.exchange(API_BASE_URL + "accounts/" + accountId + "/balance",
+                            HttpMethod.GET, makeAuthEntity(), BigDecimal.class);
+            accountBalance = response.getBody();
+        } catch (RestClientResponseException| ResourceAccessException e){
+            System.out.println("Failed to retrieve account balance.");
+        }
+        return accountBalance;
+    }
+
+    public BigDecimal getCurrentUserAccountBalance(Long accountId) {
         BigDecimal userAccountBalance = null;
         try {
             ResponseEntity<BigDecimal> response =

@@ -68,9 +68,21 @@ public class JdbcTransferDao implements TransferDao {
         return allTransfersByUserId;
     }
 
+    @Override
+    public Transfer getTransferByTransferId(Long transferId) {
+        Transfer transfer = null;
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
+                "FROM transfers WHERE transfer_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+        if (results.next()) {
+            transfer = mapRowToTransfer(results);
+        }
+        return transfer;
+    }
+
     // As an authenticated user of the system, I need to be able to retrieve the details of any transfer based upon the transfer ID.
     @Override
-    public Transfer findTransferByTransferId(Long userId, Long transferId) {
+    public Transfer findCurrentUserTransferByTransferId(Long userId, Long transferId) {
         Transfer transfer = null;
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
                 "FROM transfers JOIN accounts ON account_from = account_id OR account_to = account_id WHERE user_id = ? AND transfer_id = ?;";
@@ -81,14 +93,12 @@ public class JdbcTransferDao implements TransferDao {
         return transfer;
     }
 
-    // write FINDTRANSFERSBYTRANSFERSTATUSID
-
     @Override
     public boolean update(Long id, Transfer transferToUpdate) {
         String sql = "UPDATE transfers SET transfer_type_id = ?, transfer_status_id = ?, account_from = ?, " +
                 "account_to = ?, amount = ? WHERE transfer_id = ?;";
         return jdbcTemplate.update(sql, transferToUpdate.getTransferTypeId(), transferToUpdate.getTransferStatusId(),
-                transferToUpdate.getAccountFrom(), transferToUpdate.getAccountTo(), transferToUpdate.getAmount()) == 1;
+                transferToUpdate.getAccountFrom(), transferToUpdate.getAccountTo(), transferToUpdate.getAmount(), id) == 1;
     }
 
     @Override
