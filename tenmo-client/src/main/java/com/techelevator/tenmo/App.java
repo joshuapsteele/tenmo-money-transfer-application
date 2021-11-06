@@ -3,6 +3,7 @@ package com.techelevator.tenmo;
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
 import com.techelevator.view.ConsoleService;
+import com.techelevator.view.ConsoleUserInterface;
 import jdk.swing.interop.SwingInterOpUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,8 @@ import java.math.BigDecimal;
 public class App {
 
     private static final String API_BASE_URL = "http://localhost:8080/";
+
+    // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     private static final String MENU_OPTION_EXIT = "Exit";
     private static final String LOGIN_MENU_OPTION_REGISTER = "Register";
@@ -34,9 +37,10 @@ public class App {
 
     private AuthenticatedUser currentUser;
     private String currentUserToken;
-    private ConsoleService console;
+    private ConsoleService consoleService;
     private AuthenticationService authenticationService;
 
+    private ConsoleUserInterface consoleUserInterface = new ConsoleUserInterface();
     private AccountService accountService = new AccountService();
     private TransferService transferService = new TransferService();
     private UserService userService = new UserService();
@@ -48,8 +52,8 @@ public class App {
         app.run();
     }
 
-    public App(ConsoleService console, AuthenticationService authenticationService) {
-        this.console = console;
+    public App(ConsoleService consoleService, AuthenticationService authenticationService) {
+        this.consoleService = consoleService;
         this.authenticationService = authenticationService;
     }
 
@@ -62,9 +66,10 @@ public class App {
         mainMenu();
     }
 
+    // TODO: MOVE TO CONSOLEUSERINTERFACE
     private void mainMenu() {
         while (true) {
-            String choice = (String) console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
+            String choice = (String) consoleService.getChoiceFromOptions(MAIN_MENU_OPTIONS);
             if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
                 viewCurrentBalance();
             } else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
@@ -84,11 +89,15 @@ public class App {
         }
     }
 
+    // TODO: MOVE TO CONSOLEUSERINTERFACE
+
     private void viewCurrentBalance() {
-        BigDecimal currentBalance = accountService.getUserAccountBalance(currentUser.getUser().getUserId());
-        String currentBalanceFormatted = console.displayAsCurrency(currentBalance);
+        BigDecimal currentBalance = accountService.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
+        String currentBalanceFormatted = consoleService.displayAsCurrency(currentBalance);
         System.out.println("Your current balance is " + currentBalanceFormatted);
     }
+
+    // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     private void viewTransferHistory() {
         Transfer[] transfers = transferService.listAllTransfersCurrentUser();
@@ -112,15 +121,17 @@ public class App {
         System.out.println();
     }
 
+    // TODO: MOVE TO CONSOLEUSERINTERFACE
+
     private void viewTransferDetails() {
         viewTransferHistory();
         String prompt = "For further details on a transfer, enter its ID " +
                 "(otherwise, press '0' to exit)";
-        Long request = Long.valueOf(console.getUserInputInteger(prompt));
+        Long request = Long.valueOf(consoleService.getUserInputInteger(prompt));
         if (request == 0) {
             return;
         }
-        Transfer requestedTransfer = transferService.getTransferById(request);
+        Transfer requestedTransfer = transferService.getCurrentUserTransferById(request);
         if (requestedTransfer != null) {
             System.out.println(requestedTransfer.toString());
         } else {
@@ -128,6 +139,8 @@ public class App {
         }
 
     }
+
+    // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     private void listAllUsers() {
         User[] allUsers = userService.findAllUsers();
@@ -147,7 +160,7 @@ public class App {
         listAllUsers();
 
         String userIdPrompt = "Enter ID of user you are sending to (0 to cancel)";
-        Long userIdTransferTo = Long.valueOf(console.getUserInputInteger(userIdPrompt));
+        Long userIdTransferTo = Long.valueOf(consoleService.getUserInputInteger(userIdPrompt));
 
         if (userIdTransferTo == 0) {
             return;
@@ -160,14 +173,8 @@ public class App {
         Long accountIdTransferTo = accountTransferTo.getAccountId();
 
         String transferAmountPrompt = "Enter amount";
-        BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
+        BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
 
-        if (transferAmount.compareTo(accountService.getUserAccountBalance(currentUser.getUser().getUserId())) == 1) {
-            System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
-            return;
-        }
-
-        // Perhaps make another constructor here.
         Transfer newTransfer = new Transfer();
         newTransfer.setAccountFrom(accountIdTransferFrom);
         newTransfer.setAccountTo(accountIdTransferTo);
@@ -175,36 +182,35 @@ public class App {
         newTransfer.setTransferTypeId(2); // SEND
         newTransfer.setTransferStatusId(2); // APPROVED
 
-        transferService.createTransfer(newTransfer);
+        boolean wasTransferSuccessful = transferService.createTransfer(newTransfer);
+
+        if (wasTransferSuccessful) {
+            System.out.println("Transfer was successful");
+            viewCurrentBalance();
+        }
 
     }
 
-    // TODO IMPLEMENT STRUCTURAL/DESIGN CHANGES FROM ABOVE TO THIS METHOD BELOW
     private void requestBucks() {
         listAllUsers();
 
         String userIdPrompt = "Enter ID of user you are REQUESTING money FROM (0 to cancel)";
-        Long userIdTransferFrom = Long.valueOf(console.getUserInputInteger(userIdPrompt));
+        Long userIdTransferFrom = Long.valueOf(consoleService.getUserInputInteger(userIdPrompt));
 
         if (userIdTransferFrom == 0) {
             return;
         }
 
-		User requestedSender = userService.findUserById(userIdTransferFrom);
-
         Account accountTransferFrom = accountService.getAccountByUserId(userIdTransferFrom);
         Long accountIdTransferFrom = accountTransferFrom.getAccountId();
+        BigDecimal accountTransferFromBalance = accountTransferFrom.getBalance();
 
         Account accountTransferTo = accountService.getAccountByUserId(currentUser.getUser().getUserId());
         Long accountIdTransferTo = accountTransferTo.getAccountId();
+        BigDecimal accountTransferToBalance = accountTransferTo.getBalance();
 
         String transferAmountPrompt = "Enter amount";
-        BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
-
-		if (transferAmount.compareTo(accountService.getUserAccountBalance(requestedSender.getUserId())) == 1) {
-			System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
-			return;
-		}
+        BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
 
         Transfer newTransfer = new Transfer();
         newTransfer.setAccountFrom(accountIdTransferFrom);
@@ -213,28 +219,25 @@ public class App {
         newTransfer.setTransferTypeId(1); // REQUEST
         newTransfer.setTransferStatusId(1); // PENDING
 
-        // Tells server to create new transfer and store in the database.
-        transferService.createTransfer(newTransfer);
+        boolean transferWasSuccessful = transferService.createTransfer(newTransfer);
 
-        // TODO FIGURE OUT HOW/WHERE TO PAUSE THE PROCESS, BECAUSE WE DON'T WANT TO CHANGE THE BALANCES UNTIL THE TRANSFER STATUS CHANGES FROM PENDING TO APPROVED.
-
-        // Same structure, more or less, as above. Validate the numbers on the CLIENT SIDE before creating a Transfer Object.
-        // Transfer Object will have a DIFFERENT transfer_type_id and transfer_status than the sendBucks transfer.
-        // ASK user to approve or reject the transfer.
-        // DON'T tell the server to update account balances until the transfer is approved.
-
+        if (transferWasSuccessful) {
+            System.out.println("Request was successful. " +
+                    "The other user will now have to accept/reject the request before funds are transferred to your account.");
+        }
     }
 
     private void viewPendingRequests() {
-        // Get a Transfer[], but JUST Transfers that have a certain transfer_status_id.
         Transfer[] allTransfersForCurrentUser = transferService.listAllTransfersCurrentUser();
+
         System.out.println("-------------------------------------------");
-        System.out.println("\t\t\tPending Transfers");
+        System.out.println("\t\t\tPending Request Transfers");
         System.out.println("ID\t\tFrom/to\t\tAmount");
         for (Transfer transfer : allTransfersForCurrentUser) {
             Long accountFromId = transfer.getAccountFrom();
             Long currentUserId = currentUser.getUser().getUserId();
-            if (transfer.getTransferStatusId() == 1 && accountFromId.equals(currentUserId)) {
+            Long currentUserAccountId = accountService.getAccountByUserId(currentUserId).getAccountId();
+            if (transfer.getTransferStatusId() == 1 && accountFromId.equals(currentUserAccountId)) {
                 String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
                 Long accountToId = transfer.getAccountTo();
                 String accountToUsername = accountService.getUsernameByAccountId(accountToId);
@@ -243,26 +246,29 @@ public class App {
         }
         System.out.println("-------------------------------------------");
         String prompt = "Please enter transfer ID to approve/reject (0 to cancel)";
-        Long request = Long.valueOf(console.getUserInputInteger(prompt));
+        Long request = Long.valueOf(consoleService.getUserInputInteger(prompt));
+
         if (request == 0) {
             return;
         }
-        Transfer requestedTransfer = transferService.getTransferById(request);
 
-        // INSERT CHECK TO SEE IF TRANSFER AMOUNT EXCEEDS USER ACCOUNT BALANCE.
+        Transfer requestedTransfer = transferService.getCurrentUserTransferById(request);
 
         while (true) {
-            String choice = (String) console.getChoiceFromOptions(PENDING_TRANSFER_MENU_OPTIONS);
+            String choice = (String) consoleService.getChoiceFromOptions(PENDING_TRANSFER_MENU_OPTIONS);
             if (PENDING_TRANSFER_MENU_OPTION_APPROVE.equals(choice)) {
-                // APPROVE TRANSFER
                 requestedTransfer.setTransferStatusId(2);
                 transferService.updateTransfer(requestedTransfer);
-                // TODO HAVE THE SERVER UPDATE THE BALANCES. NOT THE CLIENT.
+                System.out.println("Transfer approved!");
+                viewCurrentBalance();
+                return;
 
             } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
                 requestedTransfer.setTransferStatusId(3);
                 transferService.updateTransfer(requestedTransfer);
-                // TODO HAVE THE SERVER UPDATE THE BALANCES. NOT THE CLIENT.
+                System.out.println("Transfer rejected!");
+                viewCurrentBalance();
+                return;
 
             } else {
                 return;
@@ -276,7 +282,7 @@ public class App {
 
     private void registerAndLogin() {
         while (!isAuthenticated()) {
-            String choice = (String) console.getChoiceFromOptions(LOGIN_MENU_OPTIONS);
+            String choice = (String) consoleService.getChoiceFromOptions(LOGIN_MENU_OPTIONS);
             if (LOGIN_MENU_OPTION_LOGIN.equals(choice)) {
                 login();
             } else if (LOGIN_MENU_OPTION_REGISTER.equals(choice)) {
@@ -336,8 +342,8 @@ public class App {
     }
 
     private UserCredentials collectUserCredentials() {
-        String username = console.getUserInput("Username");
-        String password = console.getUserInput("Password");
+        String username = consoleService.getUserInput("Username");
+        String password = consoleService.getUserInput("Password");
         return new UserCredentials(username, password);
     }
 }
