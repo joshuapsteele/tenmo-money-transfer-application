@@ -190,6 +190,8 @@ public class App {
             return;
         }
 
+		User requestedSender = userService.findUserById(userIdTransferFrom);
+
         Account accountTransferFrom = accountService.getAccountByUserId(userIdTransferFrom);
         Long accountIdTransferFrom = accountTransferFrom.getAccountId();
 
@@ -198,6 +200,11 @@ public class App {
 
         String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
+
+		if (transferAmount.compareTo(accountService.getUserAccountBalance(requestedSender.getUserId())) == 1) {
+			System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
+			return;
+		}
 
         Transfer newTransfer = new Transfer();
         newTransfer.setAccountFrom(accountIdTransferFrom);
