@@ -13,8 +13,7 @@ import java.math.BigDecimal;
 public class AccountService implements AccountServiceInterface {
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
-
-    private String authToken = null;
+    private String authToken;
 
     // We need to determine where this method should be called from. Perhaps the App class?
     @Override
@@ -79,7 +78,7 @@ public class AccountService implements AccountServiceInterface {
     }
 
     @Override
-    public BigDecimal getCurrentUserAccountBalance(Long accountId) {
+    public BigDecimal getCurrentUserAccountBalance(Long userId) {
         BigDecimal userAccountBalance = null;
         try {
             ResponseEntity<BigDecimal> response =
@@ -127,13 +126,13 @@ public class AccountService implements AccountServiceInterface {
     // and this method is how the token gets bundled into the HTTP requests.
     // The reason why HttpHeaders wasn't working before was that you imported the wrong one
     // (java.net instead of the org.springframework one).
-    private HttpEntity<Void> makeAuthEntity() {
+    public HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(headers);
     }
 
-    private HttpEntity<Account> makeAccountEntity(Account account) {
+    public HttpEntity<Account> makeAccountEntity(Account account) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authToken);

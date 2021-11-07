@@ -32,8 +32,8 @@ public class ApplicationService {
     private TransferServiceInterface transferService = new TransferService();
     private UserServiceInterface userService = new UserService();
 
-    private TenmoCLI tenmoCLI = new TenmoCLI();
-    private MoveMoney moveMoney = new MoveMoney();
+    private TenmoCLI tenmoCLI = new TenmoCLI(authenticationService, accountService, transferService, userService);
+    private MoveMoney moveMoney = new MoveMoney(authenticationService, accountService, transferService, userService, tenmoCLI);
 
 
 //    private ConsoleServiceInterface consoleService;

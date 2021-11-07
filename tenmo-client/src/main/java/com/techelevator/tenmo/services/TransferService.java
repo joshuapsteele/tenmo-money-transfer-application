@@ -13,7 +13,7 @@ public class TransferService implements TransferServiceInterface {
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private String authToken = null;
+    private String authToken;
 
     @Override
     public void setAuthToken(String authToken) {
@@ -92,14 +92,14 @@ public class TransferService implements TransferServiceInterface {
         return success;
     }
 
-    private HttpEntity<Transfer> makeTransferEntity(Transfer transfer) {
+    public HttpEntity<Transfer> makeTransferEntity(Transfer transfer) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(transfer, headers);
     }
 
-    private HttpEntity<Void> makeAuthEntity() {
+    public HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(headers);
