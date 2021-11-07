@@ -1,23 +1,25 @@
 package com.techelevator.tenmo.services;
 
-import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-public class TransferService {
+public class TransferService implements TransferServiceInterface {
 
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
 
     private String authToken = null;
 
+    @Override
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
 
+    @Override
     public boolean createTransfer(Transfer newTransfer) {
         boolean wasCreated = false;
         try {
@@ -33,6 +35,7 @@ public class TransferService {
         return false;
     }
 
+    @Override
     public Transfer getCurrentUserTransferById(Long transferId) {
         Transfer transfer = null;
         try {
@@ -49,6 +52,7 @@ public class TransferService {
         return transfer;
     }
 
+    @Override
     public Transfer[] listAllTransfers() {
         Transfer[] allTransfers = null;
         try {
@@ -61,6 +65,7 @@ public class TransferService {
         return allTransfers;
     }
 
+    @Override
     public Transfer[] listAllTransfersCurrentUser() {
         Transfer[] currentUserTransfers = null;
         try {
@@ -73,6 +78,7 @@ public class TransferService {
         return currentUserTransfers;
     }
 
+    @Override
     public boolean updateTransfer(Transfer transfer) {
         HttpEntity<Transfer> entity = makeTransferEntity(transfer);
         boolean success = false;

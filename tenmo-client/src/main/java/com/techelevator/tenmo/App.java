@@ -1,7 +1,11 @@
-package com.techelevator.tenmo;
+/*package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
+import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.AuthenticationServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
+import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
 import com.techelevator.view.ConsoleService;
 //import com.techelevator.view.ConsoleUserInterface;
 //import jdk.swing.interop.SwingInterOpUtils;
@@ -37,9 +41,8 @@ public class App {
     private AuthenticatedUser currentUser;
     private String currentUserToken;
     private ConsoleService consoleService;
-    private AuthenticationService authenticationService;
+    private AuthenticationServiceInterface authenticationServiceInterface;
 
-//    private ConsoleUserInterface consoleUserInterface = new ConsoleUserInterface();
     private AccountService accountService = new AccountService();
     private TransferService transferService = new TransferService();
     private UserService userService = new UserService();
@@ -51,9 +54,9 @@ public class App {
         app.run();
     }
 
-    public App(ConsoleService consoleService, AuthenticationService authenticationService) {
+    public App(ConsoleService consoleService, AuthenticationServiceInterface authenticationServiceInterface) {
         this.consoleService = consoleService;
-        this.authenticationService = authenticationService;
+        this.authenticationServiceInterface = authenticationServiceInterface;
     }
 
     public void run() {
@@ -74,7 +77,7 @@ public class App {
             if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
                 viewCurrentBalance();
             } else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
-                viewTransferHistory();
+                viewTransferDetails();
             } else if (MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
                 viewPendingRequests();
             } else if (MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
@@ -93,13 +96,13 @@ public class App {
     // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     private void viewCurrentBalance() {
-        BigDecimal currentBalance = accountService.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
+        BigDecimal currentBalance = accountServiceInterface.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
         String currentBalanceFormatted = consoleService.displayAsCurrency(currentBalance);
         System.out.println("Your current balance is " + currentBalanceFormatted);
     }
 
     private void viewTransferHistory() {
-        Transfer[] transfers = transferService.listAllTransfersCurrentUser();
+        Transfer[] transfers = transferServiceInterface.listAllTransfersCurrentUser();
         if (transfers == null || transfers.length == 0) {
             System.out.println("Unable to retrieve transfer history.");
             return;
@@ -111,9 +114,9 @@ public class App {
         System.out.println("-------------------------------------------");
         for (Transfer transfer : transfers) {
             Long accountFromId = transfer.getAccountFrom();
-            String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
+            String accountFromUsername = accountServiceInterface.getUsernameByAccountId(accountFromId);
             Long accountToId = transfer.getAccountTo();
-            String accountToUsername = accountService.getUsernameByAccountId(accountToId);
+            String accountToUsername = accountServiceInterface.getUsernameByAccountId(accountToId);
 
             System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t\t/\t\t" + accountToUsername + "\t\t" + transfer.getAmount());
         }
@@ -153,7 +156,6 @@ public class App {
             System.out.println("Unable to retrieve transfer." + e.getMessage());
             return;
         }
-
         if (requestedTransfer != null) {
             System.out.println(requestedTransfer.toString());
         } else {
@@ -162,7 +164,7 @@ public class App {
     }
 
     private void listAllUsers() {
-        User[] allUsers = userService.findAllUsers();
+        User[] allUsers = userServiceInterface.findAllUsers();
         System.out.println("LIST OF ALL USERS");
         System.out.println("-------------------------------------------");
         System.out.println("USERS");
@@ -228,7 +230,7 @@ public class App {
         newTransfer.setTransferTypeId(2); // SEND
         newTransfer.setTransferStatusId(2); // APPROVED
 
-        boolean wasTransferSuccessful = transferService.createTransfer(newTransfer);
+        boolean wasTransferSuccessful = transferServiceInterface.createTransfer(newTransfer);
 
         if (wasTransferSuccessful) {
             System.out.println("Transfer was successful");
@@ -270,6 +272,8 @@ public class App {
         String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
 
+
+
         Transfer newTransfer = new Transfer();
         newTransfer.setAccountFrom(accountIdTransferFrom);
         newTransfer.setAccountTo(accountIdTransferTo);
@@ -277,7 +281,7 @@ public class App {
         newTransfer.setTransferTypeId(1); // REQUEST
         newTransfer.setTransferStatusId(1); // PENDING
 
-        boolean transferWasSuccessful = transferService.createTransfer(newTransfer);
+        boolean transferWasSuccessful = transferServiceInterface.createTransfer(newTransfer);
 
         if (transferWasSuccessful) {
             System.out.println("Request was successful. " +
@@ -302,12 +306,12 @@ public class App {
         for (Transfer transfer : allTransfersForCurrentUser) {
             Long accountFromId = transfer.getAccountFrom();
             Long currentUserId = currentUser.getUser().getUserId();
-            Long currentUserAccountId = accountService.getAccountByUserId(currentUserId).getAccountId();
+            Long currentUserAccountId = accountServiceInterface.getAccountByUserId(currentUserId).getAccountId();
             if (transfer.getTransferStatusId() == 1 && accountFromId.equals(currentUserAccountId)) {
                 hasPendingRequests = true;
                 String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
                 Long accountToId = transfer.getAccountTo();
-                String accountToUsername = accountService.getUsernameByAccountId(accountToId);
+                String accountToUsername = accountServiceInterface.getUsernameByAccountId(accountToId);
                 System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t/\t" + accountToUsername + "\t\t" + transfer.getAmount());
             }
         }
@@ -384,7 +388,7 @@ public class App {
         {
             UserCredentials credentials = collectUserCredentials();
             try {
-                authenticationService.register(credentials);
+                authenticationServiceInterface.register(credentials);
                 isRegistered = true;
                 System.out.println("Registration successful. You can now login.");
             } catch (AuthenticationServiceException e) {
@@ -403,7 +407,7 @@ public class App {
         {
             UserCredentials credentials = collectUserCredentials();
             try {
-                currentUser = authenticationService.login(credentials);
+                currentUser = authenticationServiceInterface.login(credentials);
                 currentUserToken = currentUser.getToken();
             } catch (AuthenticationServiceException | NullPointerException e) {
                 System.out.println("LOGIN ERROR: " + e.getMessage());
@@ -411,9 +415,9 @@ public class App {
                 continue;
             }
             if (currentUserToken != null) {
-                accountService.setAuthToken(currentUserToken);
-                transferService.setAuthToken(currentUserToken);
-                userService.setAuthToken(currentUserToken);
+                accountServiceInterface.setAuthToken(currentUserToken);
+                transferServiceInterface.setAuthToken(currentUserToken);
+                userServiceInterface.setAuthToken(currentUserToken);
             } else {
                 System.out.println("USER AUTHENTICATION ERROR: Please attempt to login again.");
             }
@@ -426,3 +430,4 @@ public class App {
         return new UserCredentials(username, password);
     }
 }
+ */
