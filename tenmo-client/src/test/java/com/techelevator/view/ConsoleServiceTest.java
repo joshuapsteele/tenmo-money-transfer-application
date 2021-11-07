@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
-import com.techelevator.view.ConsoleService;
+import com.techelevator.tenmo.services.ConsoleService;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ConsoleServiceTest {

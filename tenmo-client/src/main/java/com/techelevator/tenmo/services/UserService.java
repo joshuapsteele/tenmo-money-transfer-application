@@ -6,10 +6,14 @@ import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface
 import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
 import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.*;
+
+@Component
 public class UserService implements UserServiceInterface {
 
     private static final String API_BASE_URL = "http://localhost:8080/api/";

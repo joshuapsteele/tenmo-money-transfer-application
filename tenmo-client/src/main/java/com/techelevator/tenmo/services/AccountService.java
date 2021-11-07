@@ -3,12 +3,14 @@ package com.techelevator.tenmo.services;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
+@Component
 public class AccountService implements AccountServiceInterface {
     private static final String API_BASE_URL = "http://localhost:8080/api/";
     private final RestTemplate restTemplate = new RestTemplate();
