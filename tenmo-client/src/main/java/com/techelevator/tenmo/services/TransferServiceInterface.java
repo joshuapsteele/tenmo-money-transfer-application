@@ -1,4 +1,4 @@
-package com.techelevator.tenmo.services.ServiceInterfaces;
+package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Transfer;
 

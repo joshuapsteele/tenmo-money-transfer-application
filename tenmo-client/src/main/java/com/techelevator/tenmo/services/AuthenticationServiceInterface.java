@@ -1,8 +1,7 @@
-package com.techelevator.tenmo.services.ServiceInterfaces;
+package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.UserCredentials;
-import com.techelevator.tenmo.services.AuthenticationServiceException;
 
 public interface AuthenticationServiceInterface {
     AuthenticatedUser login(UserCredentials credentials) throws AuthenticationServiceException;
