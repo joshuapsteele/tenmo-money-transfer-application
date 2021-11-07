@@ -1,4 +1,4 @@
-package com.techelevator.tenmo;
+/*package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
@@ -43,7 +43,6 @@ public class App {
     private ConsoleService consoleService;
     private AuthenticationServiceInterface authenticationServiceInterface;
 
-//    private ConsoleUserInterface consoleUserInterface = new ConsoleUserInterface();
     private AccountService accountService = new AccountService();
     private TransferService transferService = new TransferService();
     private UserService userService = new UserService();
@@ -273,7 +272,7 @@ public class App {
         String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
 
- */
+
 
         Transfer newTransfer = new Transfer();
         newTransfer.setAccountFrom(accountIdTransferFrom);
@@ -431,3 +430,4 @@ public class App {
         return new UserCredentials(username, password);
     }
 }
+ */

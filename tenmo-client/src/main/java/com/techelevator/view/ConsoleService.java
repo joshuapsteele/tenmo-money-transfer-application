@@ -1,7 +1,7 @@
 package com.techelevator.view;
 
 
-import org.springframework.http.ResponseEntity;
+import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Scanner;
 
-public class ConsoleService implements ConsoleServiceInterface {
+public class ConsoleService implements UserServiceInterface.ConsoleServiceInterface {
 
 	private PrintWriter out;
 	private Scanner in;

@@ -7,11 +7,9 @@ import com.techelevator.tenmo.services.ServiceInterfaces.AuthenticationServiceIn
 import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
 import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
 import com.techelevator.view.ConsoleService;
-import com.techelevator.view.ConsoleUserInterface;
 import com.techelevator.view.MoveMoney;
 import com.techelevator.view.ViewOptions;
 
-import javax.swing.text.View;
 import java.math.BigDecimal;
 
 
@@ -33,16 +31,16 @@ public class ExperimentalApp {
     private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
     private static final String[] MAIN_MENU_OPTIONS = {MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT};
 
-    private AuthenticatedUser currentUser;
-    private String currentUserToken;
-    private ConsoleService consoleService;
-    private AuthenticationServiceInterface authenticationServiceInterface;
+    public AuthenticatedUser currentUser;
+    public String currentUserToken;
+    public ConsoleService consoleService;
+    public AuthenticationServiceInterface authenticationServiceInterface;
 
-    private AccountServiceInterface accountServiceInterface = new AccountService();
-    private TransferServiceInterface transferServiceInterface = new TransferService();
-    private UserServiceInterface userServiceInterface = new UserService();
-    private MoveMoney moveMoney = new MoveMoney();
-    private ViewOptions viewOptions = new ViewOptions();
+    public AccountServiceInterface accountServiceInterface = new AccountService();
+    public TransferServiceInterface transferServiceInterface = new TransferService();
+    public UserServiceInterface userServiceInterface = new UserService();
+    public MoveMoney moveMoney = new MoveMoney();
+    public ViewOptions viewOptions = new ViewOptions();
 
     public static void main(String[] args) {
         ExperimentalApp app = new ExperimentalApp(
@@ -57,6 +55,12 @@ public class ExperimentalApp {
     }
 
     public void run() {
+        System.out.println("*********************");
+        System.out.println("* Welcome to TEnmo! *");
+        System.out.println("*********************");
+
+        registerAndLogin();
+
         MoveMoney moveMoney = new MoveMoney(consoleService,
                 authenticationServiceInterface, currentUser, currentUserToken,
                 transferServiceInterface, userServiceInterface, accountServiceInterface);
@@ -64,15 +68,6 @@ public class ExperimentalApp {
         ViewOptions viewOptions = new ViewOptions(consoleService,
                 authenticationServiceInterface, currentUser, currentUserToken,
                 transferServiceInterface, userServiceInterface, accountServiceInterface);
-
-        ConsoleUserInterface consoleUI = new ConsoleUserInterface(
-                new ConsoleService(System.in, System.out),
-                new AuthenticationService(API_BASE_URL));
-        System.out.println("*********************");
-        System.out.println("* Welcome to TEnmo! *");
-        System.out.println("*********************");
-
-        registerAndLogin();
         //consoleUI.mainMenu();
         mainMenu();
     }
@@ -82,9 +77,9 @@ public class ExperimentalApp {
         while (true) {
             String choice = (String) consoleService.getChoiceFromOptions(MAIN_MENU_OPTIONS);
             if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
-                viewCurrentBalance();
+                viewOptions.viewCurrentBalance();
             } else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
-                viewTransferDetails();
+                viewOptions.viewTransferDetails();
             } else if (MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
                 moveMoney.viewPendingRequests();
             } else if (MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {

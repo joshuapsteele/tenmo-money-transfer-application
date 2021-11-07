@@ -7,6 +7,7 @@ import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface
 import com.techelevator.tenmo.services.ServiceInterfaces.AuthenticationServiceInterface;
 import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
 import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
+import com.techelevator.view.ConsoleService;
 
 import java.math.BigDecimal;
 
@@ -21,9 +22,9 @@ public class ViewOptions {
     private ConsoleService console;
     private AuthenticationServiceInterface authService;
 
-    private AccountServiceInterface accountServiceInterface = new AccountService();
-    private TransferServiceInterface transferServiceInterface = new TransferService();
-    private UserServiceInterface userServiceInterface = new UserService();
+    private AccountServiceInterface accountServiceInterface;
+    private TransferServiceInterface transferServiceInterface;
+    private UserServiceInterface userServiceInterface;
 
     public ViewOptions(){}
 
@@ -32,6 +33,11 @@ public class ViewOptions {
                        UserServiceInterface userServiceInterface, AccountServiceInterface accountServiceInterface){
         this.console = console;
         this.authService = authService;
+        this.currentUser = currentUser;
+        this.currentUserToken = currentUserToken;
+        this.transferServiceInterface = transferServiceInterface;
+        this.userServiceInterface = userServiceInterface;
+        this.accountServiceInterface = accountServiceInterface;
     }
 
     public void viewCurrentBalance() {
