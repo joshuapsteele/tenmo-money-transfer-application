@@ -1,9 +1,7 @@
-package com.techelevator.tenmo.services;
+package com.techelevator.view;
 
-import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.*;
+import com.techelevator.tenmo.services.*;
 
 import java.math.BigDecimal;
 
@@ -39,6 +37,98 @@ public class ApplicationService {
 
     public ApplicationService() {
     }
+
+    public void mainMenu() {
+        while (true) {
+            String choice = (String) consoleService.getChoiceFromOptions(MAIN_MENU_OPTIONS);
+            if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
+                viewCurrentBalance();
+            } else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
+                viewTransferHistory();
+            } else if (MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
+                viewPendingRequests();
+            } else if (MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
+                sendBucks();
+            } else if (MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
+                requestBucks();
+            } else if (MAIN_MENU_OPTION_LOGIN.equals(choice)) {
+                login();
+            } else {
+                // the only other option on the main menu is to exit
+                exitProgram();
+            }
+        }
+    }
+
+    public void exitProgram() {
+        System.exit(0);
+    }
+
+    public void registerAndLogin() {
+        while (!isAuthenticated()) {
+            String choice = (String) consoleService.getChoiceFromOptions(LOGIN_MENU_OPTIONS);
+            if (LOGIN_MENU_OPTION_LOGIN.equals(choice)) {
+                login();
+            } else if (LOGIN_MENU_OPTION_REGISTER.equals(choice)) {
+                register();
+            } else {
+                // the only other option on the login menu is to exit
+                exitProgram();
+            }
+        }
+    }
+
+    public boolean isAuthenticated() {
+        return currentUser != null;
+    }
+
+    public void register() {
+        System.out.println("Please register a new user account");
+        boolean isRegistered = false;
+        while (!isRegistered) //will keep looping until user is registered
+        {
+            UserCredentials credentials = collectUserCredentials();
+            try {
+                authenticationService.register(credentials);
+                isRegistered = true;
+                System.out.println("Registration successful. You can now login.");
+            } catch (AuthenticationServiceException e) {
+                System.out.println("REGISTRATION ERROR: " + e.getMessage());
+                System.out.println("Please attempt to register again.");
+            }
+        }
+    }
+
+    private void login() {
+        System.out.println("Please log in");
+        currentUser = null;
+        while (currentUser == null) //will keep looping until user is logged in
+
+        // TODO FIND A WAY TO GIVE THE USER AN OPTION TO BREAK OUT OF THIS LOOP?
+        {
+            UserCredentials credentials = collectUserCredentials();
+            try {
+                currentUser = authenticationService.login(credentials);
+                currentUserToken = currentUser.getToken();
+            } catch (AuthenticationServiceException | NullPointerException e) {
+                System.out.println("LOGIN ERROR: " + e.getMessage());
+                System.out.println("Please attempt to login again.");
+                continue;
+            }
+            if (currentUserToken != null) {
+                setAuthTokens(currentUserToken);
+            } else {
+                System.out.println("USER AUTHENTICATION ERROR: Please attempt to login again.");
+            }
+        }
+    }
+
+    private UserCredentials collectUserCredentials() {
+        String username = consoleService.getUserInput("Username");
+        String password = consoleService.getUserInput("Password");
+        return new UserCredentials(username, password);
+    }
+
     public void viewCurrentBalance() {
         BigDecimal currentBalance = accountService.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
         String currentBalanceFormatted = consoleService.displayAsCurrency(currentBalance);
