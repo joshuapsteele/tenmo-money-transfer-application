@@ -118,7 +118,6 @@ public class ApplicationService {
         currentUser = null;
         while (currentUser == null) //will keep looping until user is logged in
 
-        // TODO FIND A WAY TO GIVE THE USER AN OPTION TO BREAK OUT OF THIS LOOP?
         {
             UserCredentials credentials = collectUserCredentials();
             try {
@@ -137,18 +136,21 @@ public class ApplicationService {
         }
     }
 
+    // Move to ConsoleService?
     private UserCredentials collectUserCredentials() {
         String username = consoleService.getUserInput("Username");
         String password = consoleService.getUserInput("Password");
         return new UserCredentials(username, password);
     }
 
+    // Move to AccountService?
     public void viewCurrentBalance() {
         BigDecimal currentBalance = accountService.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
         String currentBalanceFormatted = consoleService.displayAsCurrency(currentBalance);
         System.out.println("Your current balance is " + currentBalanceFormatted);
     }
 
+    // Move to TransferService?
     public void viewTransferHistory() {
         Transfer[] transfers = transferService.listAllTransfersCurrentUser();
         if (transfers == null || transfers.length == 0) {
@@ -212,6 +214,7 @@ public class ApplicationService {
         }
     }
 
+    // Move to UserService?
     public void listAllUsers() {
         User[] allUsers = userService.findAllUsers();
         System.out.println("LIST OF ALL USERS");
@@ -226,6 +229,7 @@ public class ApplicationService {
         System.out.println();
     }
 
+    // Move to TransferService?
     public void sendBucks() {
         listAllUsers();
         Long userIdTransferTo = null;
@@ -288,6 +292,7 @@ public class ApplicationService {
 
     }
 
+    // Move to TransferService?
     public void requestBucks() {
         listAllUsers();
 
@@ -336,6 +341,7 @@ public class ApplicationService {
         }
     }
 
+    // Move to TransferService?
     public void viewPendingRequests() {
         Transfer[] allTransfersForCurrentUser = transferService.listAllTransfersCurrentUser();
         boolean hasPendingRequests = false;
@@ -406,6 +412,7 @@ public class ApplicationService {
         }
     }
 
+    // Keep here in ApplicationService.
     public void setAuthTokens(String token) {
         accountService.setAuthToken(token);
         transferService.setAuthToken(token);
