@@ -29,27 +29,28 @@ public class ApplicationService {
     private AuthenticatedUser currentUser;
     private String currentUserToken;
 
-//    private ConsoleServiceInterface consoleService = new ConsoleService(System.in, System.out);
-//    private AuthenticationServiceInterface authenticationService = new AuthenticationService(API_BASE_URL);
-//    private AccountServiceInterface accountService = new AccountService();
-//    private TransferServiceInterface transferService = new TransferService();
-//    private UserServiceInterface userService = new UserService();
+    private ConsoleServiceInterface consoleService = new ConsoleService(System.in, System.out);
+    private AuthenticationServiceInterface authenticationService = new AuthenticationService(API_BASE_URL);
+    private AccountServiceInterface accountService = new AccountService();
+    private TransferServiceInterface transferService = new TransferService();
+    private UserServiceInterface userService = new UserService();
 
-    private ConsoleServiceInterface consoleService;
-    private AuthenticationServiceInterface authenticationService;
-    private AccountServiceInterface accountService;
-    private TransferServiceInterface transferService;
-    private UserServiceInterface userService;
+//    private ConsoleServiceInterface consoleService;
+//    private AuthenticationServiceInterface authenticationService;
+//    private AccountServiceInterface accountService;
+//    private TransferServiceInterface transferService;
+//    private UserServiceInterface userService;
 
-//    public ApplicationService() {
-//    }
-
-    public ApplicationService(ConsoleServiceInterface consoleService,
-                              AuthenticationServiceInterface authenticationService,
-                              AccountServiceInterface accountService,
-                              TransferServiceInterface transferService,
-                              UserServiceInterface userService) {
+    public ApplicationService() {
     }
+
+
+//    public ApplicationService(ConsoleServiceInterface consoleService,
+//                              AuthenticationServiceInterface authenticationService,
+//                              AccountServiceInterface accountService,
+//                              TransferServiceInterface transferService,
+//                              UserServiceInterface userService) {
+//    }
 
     public void mainMenu() {
         while (true) {

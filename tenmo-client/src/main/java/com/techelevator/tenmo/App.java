@@ -11,15 +11,15 @@ public class App {
 
     public static void main(String[] args) {
 
-//        App app = new App(new ApplicationService());
+        App app = new App(new ApplicationService());
 
-        App app = new App(new ApplicationService(
-                new ConsoleService(System.in, System.out),
-                new AuthenticationService(API_BASE_URL),
-                new AccountService(),
-                new TransferService(),
-                new UserService()
-        ));
+//        App app = new App(new ApplicationService(
+//                new ConsoleService(System.in, System.out),
+//                new AuthenticationService(API_BASE_URL),
+//                new AccountService(),
+//                new TransferService(),
+//                new UserService()
+//        ));
 
         app.run();
     }
