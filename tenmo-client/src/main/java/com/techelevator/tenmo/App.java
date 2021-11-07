@@ -7,7 +7,12 @@ import com.techelevator.tenmo.services.ServiceInterfaces.AuthenticationServiceIn
 import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
 import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
 import com.techelevator.view.ConsoleService;
-import com.techelevator.view.ConsoleUserInterface;
+//import com.techelevator.view.ConsoleUserInterface;
+//import jdk.swing.interop.SwingInterOpUtils;
+//import org.springframework.http.HttpMethod;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.annotation.RequestMapping;
+//import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.math.BigDecimal;
 
@@ -16,8 +21,6 @@ import java.math.BigDecimal;
 public class App {
 
     private static final String API_BASE_URL = "http://localhost:8080/";
-
-    // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     private static final String MENU_OPTION_EXIT = "Exit";
     private static final String LOGIN_MENU_OPTION_REGISTER = "Register";
@@ -40,9 +43,10 @@ public class App {
     private ConsoleService consoleService;
     private AuthenticationServiceInterface authenticationServiceInterface;
 
-    private AccountServiceInterface accountServiceInterface = new AccountService();
-    private TransferServiceInterface transferServiceInterface = new TransferService();
-    private UserServiceInterface userServiceInterface = new UserService();
+//    private ConsoleUserInterface consoleUserInterface = new ConsoleUserInterface();
+    private AccountService accountService = new AccountService();
+    private TransferService transferService = new TransferService();
+    private UserService userService = new UserService();
 
     public static void main(String[] args) {
         App app = new App(
@@ -57,19 +61,17 @@ public class App {
     }
 
     public void run() {
-        ConsoleUserInterface consoleUI = new ConsoleUserInterface(
-                new ConsoleService(System.in, System.out),
-                new AuthenticationService(API_BASE_URL));
+//        ConsoleUserInterface consoleUI = new ConsoleUserInterface(
+//                new ConsoleService(System.in, System.out),
+//                new AuthenticationService(API_BASE_URL));
         System.out.println("*********************");
         System.out.println("* Welcome to TEnmo! *");
         System.out.println("*********************");
 
         registerAndLogin();
-        //consoleUI.mainMenu();
         mainMenu();
     }
 
-    // TODO: MOVE TO CONSOLEUSERINTERFACE
     private void mainMenu() {
         while (true) {
             String choice = (String) consoleService.getChoiceFromOptions(MAIN_MENU_OPTIONS);
@@ -100,8 +102,6 @@ public class App {
         System.out.println("Your current balance is " + currentBalanceFormatted);
     }
 
-    // TODO: MOVE TO CONSOLEUSERINTERFACE
-
     private void viewTransferHistory() {
         Transfer[] transfers = transferServiceInterface.listAllTransfersCurrentUser();
         if (transfers == null || transfers.length == 0) {
@@ -110,8 +110,9 @@ public class App {
         }
 
         System.out.println("-------------------------------------------");
-        System.out.println("\t\t\t\t\tTransfers");
-        System.out.println("ID\t\t\t\t\tFrom/To\t\t\t\t\tAmount");
+        System.out.println("TRANSFERS");
+        System.out.println("ID\t\t\tFROM\t\t/\t\tTO\t\t\tAMOUNT");
+        System.out.println("-------------------------------------------");
         for (Transfer transfer : transfers) {
             Long accountFromId = transfer.getAccountFrom();
             String accountFromUsername = accountServiceInterface.getUsernameByAccountId(accountFromId);
@@ -122,39 +123,56 @@ public class App {
         }
         System.out.println("-------------------------------------------");
         System.out.println();
-        viewTransferDetails();
-    }
 
-    // TODO: MOVE TO CONSOLEUSERINTERFACE
+        boolean isTransferIdValid = false;
+        Long requestedTransferId = null;
 
-    private void viewTransferDetails() {
-        viewTransferHistory();
-        String prompt = "For further details on a transfer, enter its ID " +
-                "(otherwise, press '0' to exit)";
-        Long request = Long.valueOf(consoleService.getUserInputInteger(prompt));
-        if (request == 0) {
+        while (true) {
+            String prompt = "For further details on a transfer, enter its ID " +
+                    "(otherwise, press '0' to exit)";
+            requestedTransferId = Long.valueOf(consoleService.getUserInputInteger(prompt));
+
+            if (requestedTransferId == 0) {
+                return;
+            }
+
+            for (Transfer transfer : transfers) {
+                if (transfer.getTransferId().equals(requestedTransferId)) {
+                    isTransferIdValid = true;
+                }
+            }
+
+            if (!isTransferIdValid) {
+                System.out.println("Invalid transfer ID. Please try again.");
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        Transfer requestedTransfer = null;
+        try {
+            requestedTransfer = transferService.getCurrentUserTransferById(requestedTransferId);
+        } catch (Exception e) {
+            System.out.println("Unable to retrieve transfer." + e.getMessage());
             return;
         }
-        Transfer requestedTransfer = transferServiceInterface.getCurrentUserTransferById(request);
         if (requestedTransfer != null) {
             System.out.println(requestedTransfer.toString());
         } else {
             System.out.println("Unable to retrieve transfer.");
         }
-
     }
-
-    // TODO: MOVE TO CONSOLEUSERINTERFACE
 
     private void listAllUsers() {
         User[] allUsers = userServiceInterface.findAllUsers();
         System.out.println("LIST OF ALL USERS");
         System.out.println("-------------------------------------------");
-        System.out.println("\t\t\t\tUSERS");
-        System.out.println("ID\t\t\t\tNAME");
+        System.out.println("USERS");
+        System.out.println("ID\t\t\tNAME");
         System.out.println("-------------------------------------------");
         for (User user : allUsers) {
-            System.out.println(user.getUserId() + "\t\t\t\t" + user.getUsername());
+            System.out.println(user.getUserId() + "\t\t" + user.getUsername());
         }
         System.out.println("---------");
         System.out.println();
@@ -162,19 +180,46 @@ public class App {
 
     private void sendBucks() {
         listAllUsers();
+        Long userIdTransferTo = null;
+        boolean isUserIdValid = false;
 
-        String userIdPrompt = "Enter ID of user you are sending to (0 to cancel)";
-        Long userIdTransferTo = Long.valueOf(consoleService.getUserInputInteger(userIdPrompt));
+        while (true) {
+            String userIdPrompt = "Enter ID of user you are sending to (0 to cancel)";
+            userIdTransferTo = Long.valueOf(consoleService.getUserInputInteger(userIdPrompt));
 
-        if (userIdTransferTo == 0) {
-            return;
+            if (userIdTransferTo == 0) {
+                return;
+            }
+
+            User[] allUsers = userService.findAllUsers();
+            for (User user : allUsers) {
+                if (user.getUserId().equals(userIdTransferTo)) {
+                    isUserIdValid = true;
+                }
+            }
+
+            if (isUserIdValid) {
+                break;
+            } else {
+                System.out.println("Invalid User ID. Please try again.");
+            }
         }
 
-        Account accountTransferFrom = accountServiceInterface.getAccountByUserId(currentUser.getUser().getUserId());
-        Long accountIdTransferFrom = accountTransferFrom.getAccountId();
+        Account accountTransferFrom = null;
+        Long accountIdTransferFrom = null;
+        Account accountTransferTo = null;
+        Long accountIdTransferTo = null;
 
-        Account accountTransferTo = accountServiceInterface.getAccountByUserId(userIdTransferTo);
-        Long accountIdTransferTo = accountTransferTo.getAccountId();
+        try {
+            accountTransferFrom = accountService.getAccountByUserId(currentUser.getUser().getUserId());
+            accountIdTransferFrom = accountTransferFrom.getAccountId();
+
+            accountTransferTo = accountService.getAccountByUserId(userIdTransferTo);
+            accountIdTransferTo = accountTransferTo.getAccountId();
+        } catch (Exception e) {
+            System.out.println("Unable to retrieve accounts for the transfer." + e.getMessage());
+            return;
+        }
 
         String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
@@ -205,22 +250,27 @@ public class App {
             return;
         }
 
-        Account accountTransferFrom = accountServiceInterface.getAccountByUserId(userIdTransferFrom);
-        Long accountIdTransferFrom = accountTransferFrom.getAccountId();
-        BigDecimal accountTransferFromBalance = accountTransferFrom.getBalance();
+        Account accountTransferFrom = null;
+        Long accountIdTransferFrom = null;
+        BigDecimal accountTransferFromBalance = null;
+        Account accountTransferTo = null;
+        Long accountIdTransferTo = null;
+        BigDecimal accountTransferToBalance = null;
 
-        Account accountTransferTo = accountServiceInterface.getAccountByUserId(currentUser.getUser().getUserId());
-        Long accountIdTransferTo = accountTransferTo.getAccountId();
-        BigDecimal accountTransferToBalance = accountTransferTo.getBalance();
+        try {
+            accountTransferFrom = accountService.getAccountByUserId(userIdTransferFrom);
+            accountIdTransferFrom = accountTransferFrom.getAccountId();
+            accountTransferFromBalance = accountTransferFrom.getBalance();
 
-        String transferAmountPrompt = "Enter amount";
-        BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
-/*
-        if (transferAmount.compareTo(accountService.getUserAccountBalance(requestedSender.getUserId())) == 1) {
-            System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
+            accountTransferTo = accountService.getAccountByUserId(currentUser.getUser().getUserId());
+            accountIdTransferTo = accountTransferTo.getAccountId();
+            accountTransferToBalance = accountTransferTo.getBalance();
+        } catch (Exception e) {
+            System.out.println("Unable to retrieve accounts for requested transfer." + e.getMessage());
             return;
         }
 
+        String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
 
  */
@@ -241,22 +291,37 @@ public class App {
     }
 
     private void viewPendingRequests() {
-        Transfer[] allTransfersForCurrentUser = transferServiceInterface.listAllTransfersCurrentUser();
+        Transfer[] allTransfersForCurrentUser = transferService.listAllTransfersCurrentUser();
+        boolean hasPendingRequests = false;
+
+        if (allTransfersForCurrentUser == null || allTransfersForCurrentUser.length == 0) {
+            System.out.println("Unable to retrieve pending requests.");
+            return;
+        }
 
         System.out.println("-------------------------------------------");
         System.out.println("\t\t\tPending Request Transfers");
         System.out.println("ID\t\tFrom/to\t\tAmount");
+        System.out.println("-------------------------------------------");
+
         for (Transfer transfer : allTransfersForCurrentUser) {
             Long accountFromId = transfer.getAccountFrom();
             Long currentUserId = currentUser.getUser().getUserId();
             Long currentUserAccountId = accountServiceInterface.getAccountByUserId(currentUserId).getAccountId();
             if (transfer.getTransferStatusId() == 1 && accountFromId.equals(currentUserAccountId)) {
-                String accountFromUsername = accountServiceInterface.getUsernameByAccountId(accountFromId);
+                hasPendingRequests = true;
+                String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
                 Long accountToId = transfer.getAccountTo();
                 String accountToUsername = accountServiceInterface.getUsernameByAccountId(accountToId);
                 System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t/\t" + accountToUsername + "\t\t" + transfer.getAmount());
             }
         }
+
+        if (!hasPendingRequests) {
+            System.out.println("\nYou have 0 pending requests at this time.");
+            return;
+        }
+
         System.out.println("-------------------------------------------");
         String prompt = "Please enter transfer ID to approve/reject (0 to cancel)";
         Long request = Long.valueOf(consoleService.getUserInputInteger(prompt));
@@ -265,27 +330,33 @@ public class App {
             return;
         }
 
-        Transfer requestedTransfer = transferServiceInterface.getCurrentUserTransferById(request);
+        Transfer requestedTransfer = null;
 
-        while (true) {
-            String choice = (String) consoleService.getChoiceFromOptions(PENDING_TRANSFER_MENU_OPTIONS);
-            if (PENDING_TRANSFER_MENU_OPTION_APPROVE.equals(choice)) {
+        try {
+            requestedTransfer = transferService.getCurrentUserTransferById(request);
+        } catch (Exception e) {
+            System.out.println("Unable to retrieve transfer." + e.getMessage());
+        }
+
+        String choice = (String) consoleService.getChoiceFromOptions(PENDING_TRANSFER_MENU_OPTIONS);
+        if (PENDING_TRANSFER_MENU_OPTION_APPROVE.equals(choice)) {
+            if (requestedTransfer != null) {
                 requestedTransfer.setTransferStatusId(2);
-                transferServiceInterface.updateTransfer(requestedTransfer);
-                System.out.println("Transfer approved!");
-                viewCurrentBalance();
-                return;
-
-            } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
-                requestedTransfer.setTransferStatusId(3);
-                transferServiceInterface.updateTransfer(requestedTransfer);
-                System.out.println("Transfer rejected!");
-                viewCurrentBalance();
-                return;
-
-            } else {
-                return;
             }
+            transferService.updateTransfer(requestedTransfer);
+            System.out.println("Transfer approved!");
+            viewCurrentBalance();
+            return;
+        } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
+            if (requestedTransfer != null) {
+                requestedTransfer.setTransferStatusId(3);
+            }
+            transferService.updateTransfer(requestedTransfer);
+            System.out.println("Transfer rejected!");
+            viewCurrentBalance();
+            return;
+        } else {
+            return;
         }
     }
 
