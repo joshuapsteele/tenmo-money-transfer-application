@@ -10,9 +10,17 @@ import java.math.BigDecimal;
 public class TenmoCLI {
 
     private ConsoleServiceInterface consoleService = new ConsoleService(System.in, System.out);
-    private AccountServiceInterface accountService = new AccountService();
-    private TransferServiceInterface transferService = new TransferService();
-    private UserServiceInterface userService = new UserService();
+    private AuthenticationServiceInterface authenticationService;
+    private AccountServiceInterface accountService;
+    private TransferServiceInterface transferService;
+    private UserServiceInterface userService;
+
+    public TenmoCLI(AuthenticationServiceInterface authenticationService, AccountServiceInterface accountService, TransferServiceInterface transferService, UserServiceInterface userService) {
+        this.authenticationService = authenticationService;
+        this.accountService = accountService;
+        this.transferService = transferService;
+        this.userService = userService;
+    }
 
     public void viewCurrentBalance(AuthenticatedUser currentUser) {
         BigDecimal currentBalance = accountService.getCurrentUserAccountBalance(currentUser.getUser().getUserId());

@@ -18,7 +18,7 @@ public class UserService implements UserServiceInterface {
     private final AccountServiceInterface accountServiceInterface = new AccountService();
     private final TransferServiceInterface transferServiceInterface = new TransferService();
 
-    private String authToken = null;
+    private String authToken;
 
     @Override
     public void setAuthToken(String authToken) {
@@ -62,14 +62,14 @@ public class UserService implements UserServiceInterface {
         return username;
     }
 
-    private HttpEntity<User> makeUserEntity(User user){
+    public HttpEntity<User> makeUserEntity(User user){
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(user, headers);
     }
 
-    private HttpEntity<Void> makeAuthEntity(){
+    public HttpEntity<Void> makeAuthEntity(){
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(headers);

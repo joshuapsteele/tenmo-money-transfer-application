@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Account;
+import org.springframework.http.HttpEntity;
 
 import java.math.BigDecimal;
 
@@ -16,7 +17,11 @@ public interface AccountServiceInterface {
 
     BigDecimal getAccountBalanceByAccountId(Long accountId);
 
-    BigDecimal getCurrentUserAccountBalance(Long accountId);
+    BigDecimal getCurrentUserAccountBalance(Long userId);
 
     boolean update(Account updatedAccount);
+
+    HttpEntity<Void> makeAuthEntity();
+
+    HttpEntity<Account> makeAccountEntity(Account account);
 }

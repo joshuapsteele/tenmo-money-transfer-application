@@ -43,6 +43,7 @@ public class App {
                 "   $$ |   $$$$$$$$\\ $$ |  $$ |$$ | $$ | $$ |\\$$$$$$  |\n" +
                 "   \\__|   \\________|\\__|  \\__|\\__| \\__| \\__| \\______/ \n");
         System.out.println("****************************************************************");
+
         applicationService.registerAndLogin();
         applicationService.mainMenu();
     }
