@@ -1,7 +1,6 @@
 package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
