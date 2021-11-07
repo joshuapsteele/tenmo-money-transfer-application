@@ -5,66 +5,68 @@ import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.services.*;
-import com.techelevator.tenmo.services.ServiceInterfaces.AccountServiceInterface;
-import com.techelevator.tenmo.services.ServiceInterfaces.AuthenticationServiceInterface;
-import com.techelevator.tenmo.services.ServiceInterfaces.TransferServiceInterface;
-import com.techelevator.tenmo.services.ServiceInterfaces.UserServiceInterface;
 
 import java.math.BigDecimal;
 
 public class MoveMoney {
+
+    private ConsoleServiceInterface consoleService = new ConsoleService(System.in, System.out);
+    private AccountServiceInterface accountService = new AccountService();
+    private TransferServiceInterface transferService = new TransferService();
+    private UserServiceInterface userService = new UserService();
+    private TenmoCLI tenmoCLI = new TenmoCLI();
+
     private static final String PENDING_TRANSFER_MENU_OPTION_APPROVE = "Approve";
     private static final String PENDING_TRANSFER_MENU_OPTION_REJECT = "Reject";
     private static final String PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT = "Don't approve or reject (Exit)";
-    private static final String[] PENDING_TRANSFER_MENU_OPTIONS = {PENDING_TRANSFER_MENU_OPTION_APPROVE, PENDING_TRANSFER_MENU_OPTION_REJECT, PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT};
+    private static final String[] PENDING_TRANSFER_MENU_OPTIONS =
+            {PENDING_TRANSFER_MENU_OPTION_APPROVE, PENDING_TRANSFER_MENU_OPTION_REJECT, PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT};
 
-    private AuthenticatedUser currentUser;
-    private String token;
-    private ConsoleService console;
-    private AuthenticationServiceInterface authServ;
+    public void sendBucks(AuthenticatedUser currentUser) {
+        tenmoCLI.listAllUsers();
+        Long userIdTransferTo = null;
+        boolean isUserIdValid = false;
 
-    private AccountServiceInterface accountServiceInterface = new AccountService();
-    private TransferServiceInterface transferServiceInterface = new TransferService();
-    private UserServiceInterface userServiceInterface = new UserService();
-    private ViewOptions viewOptions = new ViewOptions();
+        while (true) {
+            String userIdPrompt = "Enter ID of user you are sending to (0 to cancel)";
+            userIdTransferTo = Long.valueOf(consoleService.getUserInputInteger(userIdPrompt));
 
-    public MoveMoney() {
+            if (userIdTransferTo == 0) {
+                return;
+            }
 
-    }
+            User[] allUsers = userService.findAllUsers();
+            for (User user : allUsers) {
+                if (user.getUserId().equals(userIdTransferTo)) {
+                    isUserIdValid = true;
+                }
+            }
 
-    private void listAllUsers() {
-        User[] allUsers = userServiceInterface.findAllUsers();
-        System.out.println("LIST OF ALL USERS");
-        System.out.println("-------------------------------------------");
-        System.out.println("\t\t\t\tUSERS");
-        System.out.println("ID\t\t\t\tNAME");
-        System.out.println("-------------------------------------------");
-        for (User user : allUsers) {
-            System.out.println(user.getUserId() + "\t\t\t\t" + user.getUsername());
+            if (isUserIdValid) {
+                break;
+            } else {
+                System.out.println("Invalid User ID. Please try again.");
+            }
         }
-        System.out.println("---------");
-        System.out.println();
-    }
 
-    public void sendBucks(AccountServiceInterface accountServiceInterface, AuthenticatedUser currentUser,
-                          TransferServiceInterface transferServiceInterface, ConsoleService console) {
-        listAllUsers();
+        Account accountTransferFrom = null;
+        Long accountIdTransferFrom = null;
+        Account accountTransferTo = null;
+        Long accountIdTransferTo = null;
 
-        String userIdPrompt = "Enter ID of user you are sending to (0 to cancel)";
-        Long userIdTransferTo = Long.valueOf(console.getUserInputInteger(userIdPrompt));
+        try {
+            accountTransferFrom = accountService.getAccountByUserId(currentUser.getUser().getUserId());
+            accountIdTransferFrom = accountTransferFrom.getAccountId();
 
-        if (userIdTransferTo == 0) {
+            accountTransferTo = accountService.getAccountByUserId(userIdTransferTo);
+            accountIdTransferTo = accountTransferTo.getAccountId();
+        } catch (Exception e) {
+            System.out.println("Unable to retrieve accounts for the transfer." + e.getMessage());
             return;
         }
 
-        Account accountTransferFrom = accountServiceInterface.getAccountByUserId(currentUser.getUser().getUserId());
-        Long accountIdTransferFrom = accountTransferFrom.getAccountId();
-
-        Account accountTransferTo = accountServiceInterface.getAccountByUserId(userIdTransferTo);
-        Long accountIdTransferTo = accountTransferTo.getAccountId();
-
         String transferAmountPrompt = "Enter amount";
-        BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
+        BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
 
         Transfer newTransfer = new Transfer();
         newTransfer.setAccountFrom(accountIdTransferFrom);
@@ -73,45 +75,47 @@ public class MoveMoney {
         newTransfer.setTransferTypeId(2); // SEND
         newTransfer.setTransferStatusId(2); // APPROVED
 
-        boolean wasTransferSuccessful = transferServiceInterface.createTransfer(newTransfer);
+        boolean wasTransferSuccessful = transferService.createTransfer(newTransfer);
 
         if (wasTransferSuccessful) {
             System.out.println("Transfer was successful");
-            viewOptions.viewCurrentBalance(accountServiceInterface, currentUser, console);
+            tenmoCLI.viewCurrentBalance(currentUser);
         }
 
     }
 
-    public void requestBucks(AccountServiceInterface accountServiceInterface, AuthenticatedUser currentUser,
-                             TransferServiceInterface transferServiceInterface, ConsoleService console) {
-        listAllUsers();
+    public void requestBucks(AuthenticatedUser currentUser) {
+        tenmoCLI.listAllUsers();
 
         String userIdPrompt = "Enter ID of user you are REQUESTING money FROM (0 to cancel)";
-        Long userIdTransferFrom = Long.valueOf(console.getUserInputInteger(userIdPrompt));
+        Long userIdTransferFrom = Long.valueOf(consoleService.getUserInputInteger(userIdPrompt));
 
         if (userIdTransferFrom == 0) {
             return;
         }
 
-        Account accountTransferFrom = accountServiceInterface.getAccountByUserId(userIdTransferFrom);
-        Long accountIdTransferFrom = accountTransferFrom.getAccountId();
-        BigDecimal accountTransferFromBalance = accountTransferFrom.getBalance();
+        Account accountTransferFrom = null;
+        Long accountIdTransferFrom = null;
+        BigDecimal accountTransferFromBalance = null;
+        Account accountTransferTo = null;
+        Long accountIdTransferTo = null;
+        BigDecimal accountTransferToBalance = null;
 
-        Account accountTransferTo = accountServiceInterface.getAccountByUserId(currentUser.getUser().getUserId());
-        Long accountIdTransferTo = accountTransferTo.getAccountId();
-        BigDecimal accountTransferToBalance = accountTransferTo.getBalance();
+        try {
+            accountTransferFrom = accountService.getAccountByUserId(userIdTransferFrom);
+            accountIdTransferFrom = accountTransferFrom.getAccountId();
+            accountTransferFromBalance = accountTransferFrom.getBalance();
 
-        String transferAmountPrompt = "Enter amount";
-        BigDecimal transferAmount = console.getUserInputBigDecimal(transferAmountPrompt);
-/*
-        if (transferAmount.compareTo(accountService.getUserAccountBalance(requestedSender.getUserId())) == 1) {
-            System.out.println("Insufficient funds. Please try again and enter a transfer amount that is lower than your current account balance.");
+            accountTransferTo = accountService.getAccountByUserId(currentUser.getUser().getUserId());
+            accountIdTransferTo = accountTransferTo.getAccountId();
+            accountTransferToBalance = accountTransferTo.getBalance();
+        } catch (Exception e) {
+            System.out.println("Unable to retrieve accounts for requested transfer." + e.getMessage());
             return;
         }
 
+        String transferAmountPrompt = "Enter amount";
         BigDecimal transferAmount = consoleService.getUserInputBigDecimal(transferAmountPrompt);
-
- */
 
         Transfer newTransfer = new Transfer();
         newTransfer.setAccountFrom(accountIdTransferFrom);
@@ -120,7 +124,7 @@ public class MoveMoney {
         newTransfer.setTransferTypeId(1); // REQUEST
         newTransfer.setTransferStatusId(1); // PENDING
 
-        boolean transferWasSuccessful = transferServiceInterface.createTransfer(newTransfer);
+        boolean transferWasSuccessful = transferService.createTransfer(newTransfer);
 
         if (transferWasSuccessful) {
             System.out.println("Request was successful. " +
@@ -128,53 +132,76 @@ public class MoveMoney {
         }
     }
 
-    public void viewPendingRequests(AccountServiceInterface accountServiceInterface, AuthenticatedUser currentUser,
-                                    TransferServiceInterface transferServiceInterface, ConsoleService console) {
-        Transfer[] allTransfersForCurrentUser = transferServiceInterface.listAllTransfersCurrentUser();
+
+    public void viewPendingRequests(AuthenticatedUser currentUser) {
+        Transfer[] allTransfersForCurrentUser = transferService.listAllTransfersCurrentUser();
+        boolean hasPendingRequests = false;
+
+        if (allTransfersForCurrentUser == null || allTransfersForCurrentUser.length == 0) {
+            System.out.println("Unable to retrieve pending requests.");
+            return;
+        }
 
         System.out.println("-------------------------------------------");
         System.out.println("\t\t\tPending Request Transfers");
         System.out.println("ID\t\tFrom/to\t\tAmount");
+        System.out.println("-------------------------------------------");
+
         for (Transfer transfer : allTransfersForCurrentUser) {
             Long accountFromId = transfer.getAccountFrom();
             Long currentUserId = currentUser.getUser().getUserId();
-            Long currentUserAccountId = accountServiceInterface.getAccountByUserId(currentUserId).getAccountId();
+            Long currentUserAccountId = accountService.getAccountByUserId(currentUserId).getAccountId();
             if (transfer.getTransferStatusId() == 1 && accountFromId.equals(currentUserAccountId)) {
-                String accountFromUsername = accountServiceInterface.getUsernameByAccountId(accountFromId);
+                hasPendingRequests = true;
+                String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
                 Long accountToId = transfer.getAccountTo();
-                String accountToUsername = accountServiceInterface.getUsernameByAccountId(accountToId);
+                String accountToUsername = accountService.getUsernameByAccountId(accountToId);
                 System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t/\t" + accountToUsername + "\t\t" + transfer.getAmount());
             }
         }
+
+        if (!hasPendingRequests) {
+            System.out.println("\nYou have 0 pending requests at this time.");
+            return;
+        }
+
         System.out.println("-------------------------------------------");
         String prompt = "Please enter transfer ID to approve/reject (0 to cancel)";
-        Long request = Long.valueOf(console.getUserInputInteger(prompt));
+        Long request = Long.valueOf(consoleService.getUserInputInteger(prompt));
 
         if (request == 0) {
             return;
         }
 
-        Transfer requestedTransfer = transferServiceInterface.getCurrentUserTransferById(request);
+        Transfer requestedTransfer = null;
 
-        while (true) {
-            String choice = (String) console.getChoiceFromOptions(PENDING_TRANSFER_MENU_OPTIONS);
-            if (PENDING_TRANSFER_MENU_OPTION_APPROVE.equals(choice)) {
+        try {
+            requestedTransfer = transferService.getCurrentUserTransferById(request);
+        } catch (Exception e) {
+            System.out.println("Unable to retrieve transfer." + e.getMessage());
+        }
+
+        String choice = (String) consoleService.getChoiceFromOptions(PENDING_TRANSFER_MENU_OPTIONS);
+        if (PENDING_TRANSFER_MENU_OPTION_APPROVE.equals(choice)) {
+            if (requestedTransfer != null) {
                 requestedTransfer.setTransferStatusId(2);
-                transferServiceInterface.updateTransfer(requestedTransfer);
-                System.out.println("Transfer approved!");
-                viewOptions.viewCurrentBalance(accountServiceInterface, currentUser, console);
-                return;
-
-            } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
-                requestedTransfer.setTransferStatusId(3);
-                transferServiceInterface.updateTransfer(requestedTransfer);
-                System.out.println("Transfer rejected!");
-                viewOptions.viewCurrentBalance(accountServiceInterface, currentUser, console);
-                return;
-
-            } else {
-                return;
             }
+            transferService.updateTransfer(requestedTransfer);
+            System.out.println("Transfer approved!");
+            tenmoCLI.viewCurrentBalance(currentUser);
+            return;
+        } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
+            if (requestedTransfer != null) {
+                requestedTransfer.setTransferStatusId(3);
+            }
+            transferService.updateTransfer(requestedTransfer);
+            System.out.println("Transfer rejected!");
+            tenmoCLI.viewCurrentBalance(currentUser);
+            return;
+        } else {
+            return;
         }
     }
+
+
 }
