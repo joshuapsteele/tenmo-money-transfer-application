@@ -2,6 +2,7 @@ package com.techelevator.tenmo.services;
 
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Scanner;
 
+@Component
 public class ConsoleService implements ConsoleServiceInterface {
 
 	private static final String MENU_OPTION_EXIT = "Exit";
