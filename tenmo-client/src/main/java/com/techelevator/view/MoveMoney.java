@@ -11,16 +11,25 @@ import java.math.BigDecimal;
 public class MoveMoney {
 
     private ConsoleServiceInterface consoleService = new ConsoleService(System.in, System.out);
-    private AccountServiceInterface accountService = new AccountService();
-    private TransferServiceInterface transferService = new TransferService();
-    private UserServiceInterface userService = new UserService();
-    private TenmoCLI tenmoCLI = new TenmoCLI();
+    private AuthenticationServiceInterface authenticationService;
+    private AccountServiceInterface accountService;
+    private TransferServiceInterface transferService;
+    private UserServiceInterface userService;
+    private TenmoCLI tenmoCLI;
 
     private static final String PENDING_TRANSFER_MENU_OPTION_APPROVE = "Approve";
     private static final String PENDING_TRANSFER_MENU_OPTION_REJECT = "Reject";
     private static final String PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT = "Don't approve or reject (Exit)";
     private static final String[] PENDING_TRANSFER_MENU_OPTIONS =
             {PENDING_TRANSFER_MENU_OPTION_APPROVE, PENDING_TRANSFER_MENU_OPTION_REJECT, PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT};
+
+    public MoveMoney(AuthenticationServiceInterface authenticationService, AccountServiceInterface accountService, TransferServiceInterface transferService, UserServiceInterface userService, TenmoCLI tenmoCLI) {
+        this.authenticationService = authenticationService;
+        this.accountService = accountService;
+        this.transferService = transferService;
+        this.userService = userService;
+        this.tenmoCLI = tenmoCLI;
+    }
 
     public void sendBucks(AuthenticatedUser currentUser) {
         tenmoCLI.listAllUsers();
@@ -166,34 +175,38 @@ public class MoveMoney {
         }
 
         System.out.println("-------------------------------------------");
-        String prompt = "Please enter transfer ID to approve/reject (0 to cancel)";
-        Long request = Long.valueOf(consoleService.getUserInputInteger(prompt));
-
-        if (request == 0) {
-            return;
-        }
-
         Transfer requestedTransfer = null;
 
-        try {
-            requestedTransfer = transferService.getCurrentUserTransferById(request);
-        } catch (Exception e) {
-            System.out.println("Unable to retrieve transfer." + e.getMessage());
+        while (true) {
+            String prompt = "Please enter transfer ID to approve/reject (0 to cancel)";
+            Long request = Long.valueOf(consoleService.getUserInputInteger(prompt));
+
+            if (request == 0) {
+                return;
+            }
+
+            try {
+                requestedTransfer = transferService.getCurrentUserTransferById(request);
+            } catch (Exception e) {
+                System.out.println("Unable to retrieve transfer." + e.getMessage());
+            }
+
+            if (requestedTransfer != null) {
+                break;
+            }
+
+            System.out.println("Unable to retrieve transfer. Please enter a valid transfer ID.");
         }
 
         String choice = (String) consoleService.getChoiceFromOptions(PENDING_TRANSFER_MENU_OPTIONS);
         if (PENDING_TRANSFER_MENU_OPTION_APPROVE.equals(choice)) {
-            if (requestedTransfer != null) {
-                requestedTransfer.setTransferStatusId(2);
-            }
+            requestedTransfer.setTransferStatusId(2);
             transferService.updateTransfer(requestedTransfer);
             System.out.println("Transfer approved!");
             tenmoCLI.viewCurrentBalance(currentUser);
             return;
         } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
-            if (requestedTransfer != null) {
-                requestedTransfer.setTransferStatusId(3);
-            }
+            requestedTransfer.setTransferStatusId(3);
             transferService.updateTransfer(requestedTransfer);
             System.out.println("Transfer rejected!");
             tenmoCLI.viewCurrentBalance(currentUser);

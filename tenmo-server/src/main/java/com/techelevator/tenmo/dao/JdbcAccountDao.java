@@ -78,7 +78,6 @@ public class JdbcAccountDao implements AccountDao{
         return balance;
     }
 
-    // TODO CALL THESE METHODS TO HAVE SERVER UPDATE ACCOUNT BALANCES.
     @Override
     public boolean increaseBalance(Long accountToId, BigDecimal amountToIncrease) {
         String sql = "UPDATE accounts SET balance = balance + ? WHERE account_id = ?;";
