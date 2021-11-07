@@ -61,13 +61,9 @@ public class ExperimentalApp {
 
         registerAndLogin();
 
-        MoveMoney moveMoney = new MoveMoney(consoleService,
-                authenticationServiceInterface, currentUser, currentUserToken,
-                transferServiceInterface, userServiceInterface, accountServiceInterface);
+        MoveMoney moveMoney = new MoveMoney();
 
-        ViewOptions viewOptions = new ViewOptions(consoleService,
-                authenticationServiceInterface, currentUser, currentUserToken,
-                transferServiceInterface, userServiceInterface, accountServiceInterface);
+        ViewOptions viewOptions = new ViewOptions();
         //consoleUI.mainMenu();
         mainMenu();
     }
@@ -77,15 +73,15 @@ public class ExperimentalApp {
         while (true) {
             String choice = (String) consoleService.getChoiceFromOptions(MAIN_MENU_OPTIONS);
             if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
-                viewOptions.viewCurrentBalance();
+                viewOptions.viewCurrentBalance(accountServiceInterface, currentUser, consoleService);
             } else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
-                viewOptions.viewTransferDetails();
+                viewOptions.viewTransferDetails(accountServiceInterface, currentUser, transferServiceInterface, consoleService);
             } else if (MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
-                moveMoney.viewPendingRequests();
+                moveMoney.viewPendingRequests(accountServiceInterface, currentUser, transferServiceInterface, consoleService);
             } else if (MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
-                moveMoney.sendBucks();
+                moveMoney.sendBucks(accountServiceInterface, currentUser, transferServiceInterface, consoleService);
             } else if (MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
-                moveMoney.requestBucks();
+                moveMoney.requestBucks(accountServiceInterface, currentUser, transferServiceInterface, consoleService);
             } else if (MAIN_MENU_OPTION_LOGIN.equals(choice)) {
                 login();
             } else {

@@ -17,30 +17,9 @@ public class ViewOptions {
     private static final String PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT = "Don't approve or reject (Exit)";
     private static final String[] PENDING_TRANSFER_MENU_OPTIONS = {PENDING_TRANSFER_MENU_OPTION_APPROVE, PENDING_TRANSFER_MENU_OPTION_REJECT, PENDING_TRANSFER_MENU_OPTION_DO_NOT_APPROVE_DO_NOT_REJECT};
 
-    private AuthenticatedUser currentUser;
-    private String currentUserToken;
-    private ConsoleService console;
-    private AuthenticationServiceInterface authService;
-
-    private AccountServiceInterface accountServiceInterface;
-    private TransferServiceInterface transferServiceInterface;
-    private UserServiceInterface userServiceInterface;
-
     public ViewOptions(){}
 
-    public ViewOptions(ConsoleService console,AuthenticationServiceInterface authService, AuthenticatedUser currentUser,
-                       String currentUserToken,TransferServiceInterface transferServiceInterface,
-                       UserServiceInterface userServiceInterface, AccountServiceInterface accountServiceInterface){
-        this.console = console;
-        this.authService = authService;
-        this.currentUser = currentUser;
-        this.currentUserToken = currentUserToken;
-        this.transferServiceInterface = transferServiceInterface;
-        this.userServiceInterface = userServiceInterface;
-        this.accountServiceInterface = accountServiceInterface;
-    }
-
-    public void viewCurrentBalance() {
+    public void viewCurrentBalance(AccountServiceInterface accountServiceInterface, AuthenticatedUser currentUser, ConsoleService console) {
         BigDecimal currentBalance = accountServiceInterface.getCurrentUserAccountBalance(currentUser.getUser().getUserId());
         String currentBalanceFormatted = console.displayAsCurrency(currentBalance);
         System.out.println("Your current balance is " + currentBalanceFormatted);
@@ -48,7 +27,8 @@ public class ViewOptions {
 
     // TODO: MOVE TO CONSOLEUSERINTERFACE
 
-    public void viewTransferHistory() {
+    public void viewTransferHistory(AccountServiceInterface accountServiceInterface,
+                                    TransferServiceInterface transferServiceInterface) {
         Transfer[] transfers = transferServiceInterface.listAllTransfersCurrentUser();
         if (transfers == null || transfers.length == 0) {
             System.out.println("Unable to retrieve transfer history.");
@@ -72,8 +52,9 @@ public class ViewOptions {
 
     // TODO: MOVE TO CONSOLEUSERINTERFACE
 
-    public void viewTransferDetails() {
-        viewTransferHistory();
+    public void viewTransferDetails(AccountServiceInterface accountServiceInterface, AuthenticatedUser currentUser,
+                                    TransferServiceInterface transferServiceInterface, ConsoleService console) {
+        viewTransferHistory(accountServiceInterface, transferServiceInterface);
         String prompt = "For further details on a transfer, enter its ID " +
                 "(otherwise, press '0' to exit)";
         Long request = Long.valueOf(console.getUserInputInteger(prompt));
@@ -89,7 +70,8 @@ public class ViewOptions {
 
     }
 
-    public void viewPendingRequests() {
+    public void viewPendingRequests(AccountServiceInterface accountServiceInterface, AuthenticatedUser currentUser,
+                                    TransferServiceInterface transferServiceInterface, ConsoleService console) {
         Transfer[] allTransfersForCurrentUser = transferServiceInterface.listAllTransfersCurrentUser();
 
         System.out.println("-------------------------------------------");
@@ -122,14 +104,14 @@ public class ViewOptions {
                 requestedTransfer.setTransferStatusId(2);
                 transferServiceInterface.updateTransfer(requestedTransfer);
                 System.out.println("Transfer approved!");
-                viewCurrentBalance();
+                viewCurrentBalance(accountServiceInterface, currentUser, console);
                 return;
 
             } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
                 requestedTransfer.setTransferStatusId(3);
                 transferServiceInterface.updateTransfer(requestedTransfer);
                 System.out.println("Transfer rejected!");
-                viewCurrentBalance();
+                viewCurrentBalance(accountServiceInterface, currentUser, console);
                 return;
 
             } else {

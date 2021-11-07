@@ -28,22 +28,6 @@ public class MoveMoney {
     private UserServiceInterface userServiceInterface = new UserService();
     private ViewOptions viewOptions = new ViewOptions();
 
-    public MoveMoney(ConsoleService console,
-                     AuthenticationServiceInterface authServ,
-                     AuthenticatedUser currentUser,
-                     String token,
-                     TransferServiceInterface transferServiceInterface,
-                     UserServiceInterface userServiceInterface,
-                     AccountServiceInterface accountServiceInterface){
-        this.console = console;
-        this.authServ = authServ;
-        this.accountServiceInterface = accountServiceInterface;
-        this.transferServiceInterface = transferServiceInterface;
-        this.userServiceInterface = userServiceInterface;
-        this.token = token;
-        this.currentUser = currentUser;
-    }
-
     public MoveMoney() {
 
     }
@@ -62,7 +46,8 @@ public class MoveMoney {
         System.out.println();
     }
 
-    public void sendBucks() {
+    public void sendBucks(AccountServiceInterface accountServiceInterface, AuthenticatedUser currentUser,
+                          TransferServiceInterface transferServiceInterface, ConsoleService console) {
         listAllUsers();
 
         String userIdPrompt = "Enter ID of user you are sending to (0 to cancel)";
@@ -92,12 +77,13 @@ public class MoveMoney {
 
         if (wasTransferSuccessful) {
             System.out.println("Transfer was successful");
-            viewOptions.viewCurrentBalance();
+            viewOptions.viewCurrentBalance(accountServiceInterface, currentUser, console);
         }
 
     }
 
-    public void requestBucks() {
+    public void requestBucks(AccountServiceInterface accountServiceInterface, AuthenticatedUser currentUser,
+                             TransferServiceInterface transferServiceInterface, ConsoleService console) {
         listAllUsers();
 
         String userIdPrompt = "Enter ID of user you are REQUESTING money FROM (0 to cancel)";
@@ -142,7 +128,8 @@ public class MoveMoney {
         }
     }
 
-    public void viewPendingRequests() {
+    public void viewPendingRequests(AccountServiceInterface accountServiceInterface, AuthenticatedUser currentUser,
+                                    TransferServiceInterface transferServiceInterface, ConsoleService console) {
         Transfer[] allTransfersForCurrentUser = transferServiceInterface.listAllTransfersCurrentUser();
 
         System.out.println("-------------------------------------------");
@@ -175,14 +162,14 @@ public class MoveMoney {
                 requestedTransfer.setTransferStatusId(2);
                 transferServiceInterface.updateTransfer(requestedTransfer);
                 System.out.println("Transfer approved!");
-                viewOptions.viewCurrentBalance();
+                viewOptions.viewCurrentBalance(accountServiceInterface, currentUser, console);
                 return;
 
             } else if (PENDING_TRANSFER_MENU_OPTION_REJECT.equals(choice)) {
                 requestedTransfer.setTransferStatusId(3);
                 transferServiceInterface.updateTransfer(requestedTransfer);
                 System.out.println("Transfer rejected!");
-                viewOptions.viewCurrentBalance();
+                viewOptions.viewCurrentBalance(accountServiceInterface, currentUser, console);
                 return;
 
             } else {
