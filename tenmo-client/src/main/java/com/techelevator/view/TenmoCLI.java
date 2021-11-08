@@ -91,15 +91,18 @@ public class TenmoCLI {
         }
     }
 
-    public void listAllUsers() {
+    public void listAllUsers(AuthenticatedUser currentUser) {
         User[] allUsers = userService.findAllUsers();
         System.out.println("-----------------------------------------------------");
-        System.out.println("LIST OF ALL USERS");
+        System.out.println("LIST OF AVAILABLE USERS");
         System.out.println("-----------------------------------------------------");
         System.out.println("USERS");
         System.out.println("ID\t\t\tNAME");
         System.out.println("-----------------------------------------------------");
         for (User user : allUsers) {
+            if (user.getUserId().equals(currentUser.getUser().getUserId())){
+                continue;
+            }
             System.out.println(user.getUserId() + "\t\t" + user.getUsername());
         }
         System.out.println("-----------------------------------------------------");

@@ -29,7 +29,7 @@ public class MoveMoney {
     }
 
     public void sendBucks(AuthenticatedUser currentUser) {
-        tenmoCLI.listAllUsers();
+        tenmoCLI.listAllUsers(currentUser);
         Long userIdTransferTo;
         boolean isUserIdValid = false;
 
@@ -39,6 +39,9 @@ public class MoveMoney {
 
             if (userIdTransferTo == 0) {
                 return;
+            } else if (userIdTransferTo == currentUser.getUser().getUserId()){
+                System.out.println("Cannot send money to the current user. ");
+                continue;
             }
 
             User[] allUsers = userService.findAllUsers();
@@ -92,7 +95,7 @@ public class MoveMoney {
     }
 
     public void requestBucks(AuthenticatedUser currentUser) {
-        tenmoCLI.listAllUsers();
+        tenmoCLI.listAllUsers(currentUser);
 
         String userIdPrompt = "Enter ID of user you are REQUESTING money FROM (0 to cancel)";
         Long userIdTransferFrom = Long.valueOf(consoleService.getUserInputInteger(userIdPrompt));
