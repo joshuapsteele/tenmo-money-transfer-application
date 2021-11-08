@@ -1,4 +1,5 @@
 package com.techelevator.tenmo.model;
+
 import java.math.BigDecimal;
 
 public class Transfer {
@@ -10,7 +11,7 @@ public class Transfer {
     private int transferTypeId;
     private int transferStatusId;
 
-    public Transfer(){
+    public Transfer() {
     }
 
     public Long getTransferId() {

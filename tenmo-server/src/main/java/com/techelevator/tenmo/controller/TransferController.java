@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
@@ -18,9 +17,9 @@ import java.util.List;
 @PreAuthorize("isAuthenticated()")
 @RequestMapping("/api/transfers/")
 public class TransferController {
-    private AccountDao accountDao;
-    private TransferDao transferDao;
-    private UserDao userDao;
+    private final AccountDao accountDao;
+    private final TransferDao transferDao;
+    private final UserDao userDao;
 
     public TransferController(AccountDao accountDao, TransferDao transferDao, UserDao userDao) {
         this.accountDao = accountDao;
@@ -40,9 +39,6 @@ public class TransferController {
         return transferDao.findCurrentUserTransferByTransferId(user_id, id);
     }
 
-    // TODO VALIDATE THE DATA (ACCOUNT IDS, BALANCE, AMOUNT, ETC.) BEFORE CHANGING ANY OF THE DATA
-    // THROW EXCEPTION, 400 ERROR, MESSSAGE TO CLIENT
-
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "", method = RequestMethod.POST)
     public boolean create(@RequestBody Transfer transfer) throws TransferControllerException {
@@ -55,8 +51,10 @@ public class TransferController {
         } else if (transferAmount.compareTo(accountFrom.getBalance()) > 0) {
             throw new TransferControllerException("INSUFFICIENT FUNDS, TRANSFER AMOUNT GREATER THAN ACCOUNT BALANCE");
         }
+
         // If the if/else-if block above passes, we know that the accounts exist and that the account balance is sufficient.
         // We can therefore create the transfer in the database here with the following line.
+
         boolean wasCreated = transferDao.create(transfer);
 
         // However, before changing any account balances, we now need to check the status of the transfer.
@@ -72,7 +70,7 @@ public class TransferController {
         }
 
         return wasCreated;
-        }
+    }
 
     @RequestMapping(path = "my-transfers", method = RequestMethod.GET)
     public List<Transfer> viewAllTransfersByUserId(Principal whoIsLoggedIn) {
@@ -84,7 +82,6 @@ public class TransferController {
     @RequestMapping(path = "{id}", method = RequestMethod.PUT)
     public boolean update(@PathVariable Long id, @RequestBody Transfer transfer) throws TransferControllerException {
         boolean wasUpdated = false;
-        boolean isNewApproval = false;
 
         Account accountFrom = accountDao.getAccountByAccountId(transfer.getAccountFrom());
         Account accountTo = accountDao.getAccountByAccountId(transfer.getAccountTo());
@@ -119,17 +116,4 @@ public class TransferController {
     public boolean delete(@PathVariable Long id) {
         return transferDao.delete(id);
     }
-
-
-//    I don't think we need this method below, because I think that the approval checks in CREATE and UPDATE above need to be slightly different.
-
-//    private void isApproved(Transfer transfer, Account accountFrom, Account accountTo, BigDecimal transferAmount){
-//        if (transferAmount.compareTo(accountFrom.getBalance()) == 2 && accountFrom != null) {
-//            accountDao.decreaseBalance(accountFrom.getAccountId(), transferAmount);
-//        }
-//        if (transferAmount.compareTo(accountFrom.getBalance()) == 2 && accountTo != null) {
-//            accountDao.increaseBalance(accountTo.getAccountId(), transferAmount);
-//        }
-//    }
-
 }

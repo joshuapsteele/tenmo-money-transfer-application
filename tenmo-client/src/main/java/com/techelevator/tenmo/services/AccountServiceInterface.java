@@ -6,7 +6,7 @@ import org.springframework.http.HttpEntity;
 import java.math.BigDecimal;
 
 public interface AccountServiceInterface {
-    // We need to determine where this method should be called from. Perhaps the App class?
+
     void setAuthToken(String authToken);
 
     Account getAccountByAccountId(Long accountId);

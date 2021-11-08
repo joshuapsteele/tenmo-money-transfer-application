@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class JdbcAccountDao implements AccountDao{
+public class JdbcAccountDao implements AccountDao {
 
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public JdbcAccountDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -42,8 +42,7 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public String getUsernameByAccountId(Long account_id) {
         String sql = "SELECT username FROM users JOIN accounts USING (user_id) WHERE account_id = ?;";
-        String username = jdbcTemplate.queryForObject(sql, String.class, account_id);
-        return username;
+        return jdbcTemplate.queryForObject(sql, String.class, account_id);
     }
 
     @Override
@@ -59,23 +58,20 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public Long getUserIdByAccountId(Long id) {
         String sql = "SELECT user_id FROM accounts WHERE account_id = ?;";
-        Long user_id = jdbcTemplate.queryForObject(sql, Long.class, id);
-        return user_id;
+        return jdbcTemplate.queryForObject(sql, Long.class, id);
     }
 
     @Override
     public BigDecimal viewBalanceByAccountId(Long accountId) {
         String sql = "SELECT balance FROM accounts WHERE account_id = ?;";
-        BigDecimal balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, accountId);
-        return balance;
+        return jdbcTemplate.queryForObject(sql, BigDecimal.class, accountId);
     }
 
     // As an authenticated user of the system, I need to be able to see my Account Balance.
     @Override
     public BigDecimal viewBalanceByUserId(Long userId) {
         String sql = "SELECT balance FROM accounts WHERE user_id = ?;";
-        BigDecimal balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, userId);
-        return balance;
+        return jdbcTemplate.queryForObject(sql, BigDecimal.class, userId);
     }
 
     @Override

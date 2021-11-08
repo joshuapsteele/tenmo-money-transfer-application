@@ -1,9 +1,8 @@
 package com.techelevator.view;
 
-import com.techelevator.tenmo.model.*;
+import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.*;
-
-import java.math.BigDecimal;
 
 public class ApplicationService {
 
@@ -12,45 +11,24 @@ public class ApplicationService {
     private static final String MENU_OPTION_EXIT = "Exit";
     private static final String LOGIN_MENU_OPTION_REGISTER = "Register";
     private static final String LOGIN_MENU_OPTION_LOGIN = "Login";
-    private static final String[] LOGIN_MENU_OPTIONS = {LOGIN_MENU_OPTION_REGISTER, LOGIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT};
+    private static final String[] LOGIN_MENU_OPTIONS =
+            {LOGIN_MENU_OPTION_REGISTER, LOGIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT};
     private static final String MAIN_MENU_OPTION_VIEW_BALANCE = "View your current balance";
     private static final String MAIN_MENU_OPTION_SEND_BUCKS = "Send TE bucks";
     private static final String MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS = "View your past transfers";
     private static final String MAIN_MENU_OPTION_REQUEST_BUCKS = "Request TE bucks";
     private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "View your pending requests";
     private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
-    private static final String[] MAIN_MENU_OPTIONS = {MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT};
-
-
-
+    private static final String[] MAIN_MENU_OPTIONS =
+            {MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT};
+    private final ConsoleServiceInterface consoleService = new ConsoleService(System.in, System.out);
+    private final AuthenticationServiceInterface authenticationService = new AuthenticationService(API_BASE_URL);
+    private final AccountServiceInterface accountService = new AccountService();
+    private final TransferServiceInterface transferService = new TransferService();
+    private final UserServiceInterface userService = new UserService();
+    private final TenmoCLI tenmoCLI = new TenmoCLI(accountService, transferService, userService);
+    private final MoveMoney moveMoney = new MoveMoney(accountService, transferService, userService, tenmoCLI);
     private AuthenticatedUser currentUser;
-    private String currentUserToken;
-
-    private ConsoleServiceInterface consoleService = new ConsoleService(System.in, System.out);
-    private AuthenticationServiceInterface authenticationService = new AuthenticationService(API_BASE_URL);
-    private AccountServiceInterface accountService = new AccountService();
-    private TransferServiceInterface transferService = new TransferService();
-    private UserServiceInterface userService = new UserService();
-
-    private TenmoCLI tenmoCLI = new TenmoCLI(authenticationService, accountService, transferService, userService);
-    private MoveMoney moveMoney = new MoveMoney(authenticationService, accountService, transferService, userService, tenmoCLI);
-
-
-//    private ConsoleServiceInterface consoleService;
-//    private AuthenticationServiceInterface authenticationService;
-//    private AccountServiceInterface accountService;
-//    private TransferServiceInterface transferService;
-//    private UserServiceInterface userService;
-
-    public ApplicationService() {
-    }
-
-//    public ApplicationService(ConsoleServiceInterface consoleService,
-//                              AuthenticationServiceInterface authenticationService,
-//                              AccountServiceInterface accountService,
-//                              TransferServiceInterface transferService,
-//                              UserServiceInterface userService) {
-//    }
 
     public void mainMenu() {
         while (true) {
@@ -120,6 +98,7 @@ public class ApplicationService {
 
         {
             UserCredentials credentials = collectUserCredentials();
+            String currentUserToken;
             try {
                 currentUser = authenticationService.login(credentials);
                 currentUserToken = currentUser.getToken();
