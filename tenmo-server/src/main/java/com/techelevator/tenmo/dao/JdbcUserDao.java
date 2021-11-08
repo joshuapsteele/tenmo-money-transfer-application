@@ -9,13 +9,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class JdbcUserDao implements UserDao {
 
     private static final BigDecimal STARTING_BALANCE = new BigDecimal("1000.00");
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public JdbcUserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -96,7 +97,8 @@ public class JdbcUserDao implements UserDao {
     @Override
     public boolean update(Long id, User userToUpdate) {
         String sql = "UPDATE users SET username = ?, password_hash = ? WHERE user_id = ?;";
-        return jdbcTemplate.update(sql, userToUpdate.getUsername(), new BCryptPasswordEncoder().encode(userToUpdate.getPassword()), id) == 1;
+        return jdbcTemplate.update(sql, userToUpdate.getUsername(),
+                new BCryptPasswordEncoder().encode(userToUpdate.getPassword()), id) == 1;
     }
 
     @Override

@@ -2,12 +2,10 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-@Component
 public class TransferService implements TransferServiceInterface {
 
     private static final String API_BASE_URL = "http://localhost:8080/api/";
@@ -31,7 +29,7 @@ public class TransferService implements TransferServiceInterface {
             wasCreated = response.getBody();
             return wasCreated;
         } catch (RestClientResponseException | ResourceAccessException e) {
-            System.out.println("Transfer failed. Try again." + e.getMessage());
+            System.out.println("Transfer failed. Try again.");
         }
         return false;
     }
@@ -48,7 +46,7 @@ public class TransferService implements TransferServiceInterface {
 
             transfer = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
-            System.out.println("Transfer pull failed. ");
+            System.out.println("Transfer pull failed.");
         }
         return transfer;
     }
@@ -61,7 +59,7 @@ public class TransferService implements TransferServiceInterface {
                     HttpMethod.GET, makeAuthEntity(), Transfer[].class);
             allTransfers = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
-            System.out.println("Failed to retrieve transfers" + e.getMessage());
+            System.out.println("Failed to retrieve transfers.");
         }
         return allTransfers;
     }
@@ -74,7 +72,7 @@ public class TransferService implements TransferServiceInterface {
                     HttpMethod.GET, makeAuthEntity(), Transfer[].class);
             currentUserTransfers = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
-            System.out.println("Failed to retrieve transfers" + e.getMessage());
+            System.out.println("Failed to retrieve transfers.");
         }
         return currentUserTransfers;
     }

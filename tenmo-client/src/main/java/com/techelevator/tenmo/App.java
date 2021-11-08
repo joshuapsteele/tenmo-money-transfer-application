@@ -1,31 +1,19 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.*;
-import com.techelevator.tenmo.services.*;
 import com.techelevator.view.ApplicationService;
 
 public class App {
 
     private static final String API_BASE_URL = "http://localhost:8080/";
-    private ApplicationService applicationService;
-
-    public static void main(String[] args) {
-
-        App app = new App(new ApplicationService());
-
-//        App app = new App(new ApplicationService(
-//                new ConsoleService(System.in, System.out),
-//                new AuthenticationService(API_BASE_URL),
-//                new AccountService(),
-//                new TransferService(),
-//                new UserService()
-//        ));
-
-        app.run();
-    }
+    private final ApplicationService applicationService;
 
     public App(ApplicationService applicationService) {
         this.applicationService = applicationService;
+    }
+
+    public static void main(String[] args) {
+        App app = new App(new ApplicationService());
+        app.run();
     }
 
     public void run() {

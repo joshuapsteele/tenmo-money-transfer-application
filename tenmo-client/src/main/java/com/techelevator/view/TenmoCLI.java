@@ -9,14 +9,13 @@ import java.math.BigDecimal;
 
 public class TenmoCLI {
 
-    private ConsoleServiceInterface consoleService = new ConsoleService(System.in, System.out);
-    private AuthenticationServiceInterface authenticationService;
-    private AccountServiceInterface accountService;
-    private TransferServiceInterface transferService;
-    private UserServiceInterface userService;
+    private final ConsoleServiceInterface consoleService = new ConsoleService(System.in, System.out);
+    private final AccountServiceInterface accountService;
+    private final TransferServiceInterface transferService;
+    private final UserServiceInterface userService;
 
-    public TenmoCLI(AuthenticationServiceInterface authenticationService, AccountServiceInterface accountService, TransferServiceInterface transferService, UserServiceInterface userService) {
-        this.authenticationService = authenticationService;
+    public TenmoCLI(AccountServiceInterface accountService, TransferServiceInterface transferService,
+                    UserServiceInterface userService) {
         this.accountService = accountService;
         this.transferService = transferService;
         this.userService = userService;
@@ -35,23 +34,24 @@ public class TenmoCLI {
             return;
         }
 
-        System.out.println("-------------------------------------------");
+        System.out.println("-----------------------------------------------------");
         System.out.println("TRANSFERS");
         System.out.println("ID\t\t\tFROM\t\t/\t\tTO\t\t\tAMOUNT");
-        System.out.println("-------------------------------------------");
+        System.out.println("-----------------------------------------------------");
         for (Transfer transfer : transfers) {
             Long accountFromId = transfer.getAccountFrom();
             String accountFromUsername = accountService.getUsernameByAccountId(accountFromId);
             Long accountToId = transfer.getAccountTo();
             String accountToUsername = accountService.getUsernameByAccountId(accountToId);
 
-            System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t\t/\t\t" + accountToUsername + "\t\t" + transfer.getAmount());
+            System.out.println(transfer.getTransferId() + "\t\t" + accountFromUsername + "\t\t/\t\t" +
+                    accountToUsername + "\t\t" + transfer.getAmount());
         }
-        System.out.println("-------------------------------------------");
+        System.out.println("-----------------------------------------------------");
         System.out.println();
 
         boolean isTransferIdValid = false;
-        Long requestedTransferId = null;
+        Long requestedTransferId;
 
         while (true) {
             String prompt = "For further details on a transfer, enter its ID " +
@@ -65,43 +65,44 @@ public class TenmoCLI {
             for (Transfer transfer : transfers) {
                 if (transfer.getTransferId().equals(requestedTransferId)) {
                     isTransferIdValid = true;
+                    break;
                 }
             }
 
             if (!isTransferIdValid) {
                 System.out.println("Invalid transfer ID. Please try again.");
-                continue;
             } else {
                 break;
             }
         }
 
-        Transfer requestedTransfer = null;
+        Transfer requestedTransfer;
         try {
             requestedTransfer = transferService.getCurrentUserTransferById(requestedTransferId);
         } catch (Exception e) {
-            System.out.println("Unable to retrieve transfer." + e.getMessage());
+            System.out.println("Unable to retrieve transfer. Please try again.");
             return;
         }
 
         if (requestedTransfer != null) {
             System.out.println(requestedTransfer.toString());
         } else {
-            System.out.println("Unable to retrieve transfer.");
+            System.out.println("Unable to retrieve transfer. Please try again.");
         }
     }
 
     public void listAllUsers() {
         User[] allUsers = userService.findAllUsers();
+        System.out.println("-----------------------------------------------------");
         System.out.println("LIST OF ALL USERS");
-        System.out.println("-------------------------------------------");
+        System.out.println("-----------------------------------------------------");
         System.out.println("USERS");
         System.out.println("ID\t\t\tNAME");
-        System.out.println("-------------------------------------------");
+        System.out.println("-----------------------------------------------------");
         for (User user : allUsers) {
             System.out.println(user.getUserId() + "\t\t" + user.getUsername());
         }
-        System.out.println("---------");
+        System.out.println("-----------------------------------------------------");
         System.out.println();
     }
 }

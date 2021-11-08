@@ -3,14 +3,10 @@ package com.techelevator.tenmo.services;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.User;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
-
-@Component
 public class UserService implements UserServiceInterface {
 
     private static final String API_BASE_URL = "http://localhost:8080/api/";
@@ -58,18 +54,17 @@ public class UserService implements UserServiceInterface {
         Account account = accountServiceInterface.getAccountByAccountId(accountId);
         Long userId = account.getUserId();
         User user = findUserById(userId);
-        String username = user.getUsername();
-        return username;
+        return user.getUsername();
     }
 
-    public HttpEntity<User> makeUserEntity(User user){
+    public HttpEntity<User> makeUserEntity(User user) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(user, headers);
     }
 
-    public HttpEntity<Void> makeAuthEntity(){
+    public HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(headers);

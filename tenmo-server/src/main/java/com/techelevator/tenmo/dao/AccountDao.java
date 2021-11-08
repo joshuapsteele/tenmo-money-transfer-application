@@ -19,7 +19,6 @@ public interface AccountDao {
 
     BigDecimal viewBalanceByAccountId(Long accountId);
 
-    // As an authenticated user of the system, I need to be able to see my Account Balance.
     BigDecimal viewBalanceByUserId(Long userId);
 
     boolean increaseBalance(Long accountToId, BigDecimal amountToIncrease);
