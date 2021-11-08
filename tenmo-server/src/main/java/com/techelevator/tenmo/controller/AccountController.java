@@ -1,7 +1,6 @@
 package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.AccountDao;
-import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Account;
 import org.springframework.http.HttpStatus;
@@ -18,12 +17,10 @@ import java.util.List;
 @RequestMapping("/api/accounts/")
 public class AccountController {
     private final AccountDao accountDao;
-    private final TransferDao transferDao;
     private final UserDao userDao;
 
-    public AccountController(AccountDao accountDao, TransferDao transferDao, UserDao userDao) {
+    public AccountController(AccountDao accountDao, UserDao userDao) {
         this.accountDao = accountDao;
-        this.transferDao = transferDao;
         this.userDao = userDao;
     }
 
@@ -52,13 +49,11 @@ public class AccountController {
         return accountDao.viewBalanceByAccountId(id);
     }
 
-    // As an authenticated user of the system, I need to be able to see my Account Balance.
     @RequestMapping(path = "my-account-balance", method = RequestMethod.GET)
     public BigDecimal viewBalance(Principal whoIsLoggedIn) {
         String username = whoIsLoggedIn.getName();
         Long userId = userDao.findIdByUsername(username);
-        BigDecimal balance = accountDao.viewBalanceByUserId(userId);
-        return balance;
+        return accountDao.viewBalanceByUserId(userId);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

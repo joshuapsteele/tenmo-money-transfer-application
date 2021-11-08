@@ -1,8 +1,5 @@
 package com.techelevator.tenmo.model;
 
-import com.techelevator.tenmo.services.AccountService;
-import io.cucumber.core.internal.gherkin.StringUtils;
-
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 
@@ -98,8 +95,8 @@ public class Transfer {
                 "\n Transfer Details: " +
                 "\n--------------------------------------------" +
                 "\n Transfer ID:    " + transferId +
-                "\n From Account:   " + accountFrom + // Would love to display username here, but I'm not sure the best way how.
-                "\n To Account:     " + accountTo + // Would love to display username here, but I'm not sure the best way how.
+                "\n From Account:   " + accountFrom +
+                "\n To Account:     " + accountTo +
                 "\n Type:           " + displayTransferType(transferTypeId) +
                 "\n Status:         " + displayTransferStatus(transferStatusId) +
                 "\n Amount:         " + displayAsCurrency(amount) +
